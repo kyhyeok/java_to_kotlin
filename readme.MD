@@ -324,6 +324,7 @@ println(str[0]) // A
 - if-else if-else도 같다
 
 ## Expression과 Statement
+
 ### Expression
 - Expression(표현식)은 값을 반환하는 코드 블록이다. 하나의 값으로 도출되는 문장이다
 - 값을 만들어내는 코드, 하나의 값으로 평가될 수 있다
@@ -349,3 +350,35 @@ println(str[0]) // A
   - 예: in, !in, is, !is, 콤마(,)를 이용한 다중 조건 등
 - break 없이 자동으로 분기가 종료된다.
 - when은 Enum Class 혹은 Sealed Class와 함께 사용하면 더욱 유용하다.
+
+<hr>
+
+# 6. 반복문 다루는 방법
+
+## for-each문
+- Java나 Kotlin이나 for-each문은 거의 동일하게 동작한다
+- Java는 :을 사용하고 Kotlin에서는 in 키워드를 사용한다
+
+## 전통적인 for문
+```
+for (i in 1..3) {
+    println(i) 1, 2, 3
+}
+for (i in 3 downTo 1) {
+    println(i) 3, 2, 1
+}
+for (i in 1..5 step 2) {
+    println(i) 1, 3, 5
+}
+```
+## Progression과 Range
+- Progression은 등차수열이다. 시작 값, 끝 값, 공차 (증가 또는 감소 값)으로 구성된다
+- 1..3은 Range를 나타내며, 1부터 3까지의 숫자를 포함하는 범위를 의미한다
+- 1..3의 의미는 "1에서 시작하고 3으로 끝나는 등차수열을 만들어 줘"라는 의미이다
+- 3 downTo 1은 3부터 1까지의 숫자를 포함하는 범위를 의미하며, 1씩 감소하는 등차수열을 만들어 준다
+- 1..5 step 2는 1부터 5까지의 숫자 중 2씩 증가하는 등차수열을 만들어 준다
+- downTo, Step도 함수이다 (중위 호출 함수)
+- Kotlin에서 전통적인 for문은 등차수열을 이용한다
+
+## while문
+- Kotlin의 while문은 Java와 동일하게 동작한다
