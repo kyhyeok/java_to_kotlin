@@ -382,3 +382,39 @@ for (i in 1..5 step 2) {
 
 ## while문
 - Kotlin의 while문은 Java와 동일하게 동작한다
+
+<hr>
+
+# 7. 예의를 다루는 방법
+- Java와 문법 자체는 동일하지만 Java와 Kotlin의 차이로 인한 포맷팅이 간결하다
+- null을 허용하는 타입과 허용하지 않는 타입이 구분되기 때문에, null을 체크하는 방법이 다르다
+  - Kotlin에서는 null을 허용하는 타입은 ?를 붙여서 선언하고, null을 체크하는 방법은 if문과 동일하게 Expression으로 간주되어서 return을 한 번만 사용해도 된다
+```
+fun parseIntOrThrowNull(str: String): Int? {
+    return try {
+        str.toInt()
+    } catch (e: NumberFormatException) {
+        null
+    }
+}
+```
+
+## try catch finally 구문
+- Java와 동일하게 동작한다
+
+## Checked Exception과 Unchecked Exception
+- Kotlin에서는 Checked Exception이 없다. 모든 예외는 Unchecked Exception이다
+- Java에서는 Checked Exception과 Unchecked Exception이 구분되지만, Kotlin에서는 모든 예외가 Unchecked Exception이다
+- Java는 복구 가능한 실패를 강제 처리시키려는 의도로 Checked Exception을 도입했고, 버그/계약 위반처럼 복구 불가능한 경우엔 Unchecked Exception을 사용
+- Checked Exception은 보일러플레이트 증가, throws 연쇄로 인한 추상화 누수와 API 진화 저해, 함수형/비동기와의 궁합 불량, 의미 없는 빈 catch 유도 등의 단점이 있다
+- Kotlin은 Checked Exception을 제거하여 이러한 단점을 해결하고, 예외 처리의 복잡성을 줄였다.
+  - 모든 예외를 Unchecked Exception처럼 취급하며, 복구 가능한 실패는 Result/sealed class 등 타입으로 모델링하는 방식을 선호한다
+- Kotlin도 필요 시 try-catch가 가능하고, Java 쪽에 throws가 보이게 하려면 @throws로 노추할 수 있다
+
+### Java는 복구 강제(Checked) + 버그 (Unchecked) 이원화, Kotlin은 예외 강제 없음 + 복구는 타입으로 모델링
+
+## try with resources
+- Kotlin에서는 try with resources 구문이 없다
+- 대신, Kotlin에서는 use() 함수를 사용하여 자원을 자동으로 해제할 수 있다
+- use() 함수는 AutoCloseable 인터페이스를 구현한 객체에서 사용되며, 자원을 자동으로 해제해준다
+- use() 함수는 확장 함수로 제공되며, 자원을 사용한 후 자동으로 close() 메소드를 호출한다
