@@ -418,3 +418,132 @@ fun parseIntOrThrowNull(str: String): Int? {
 - 대신, Kotlin에서는 use() 함수를 사용하여 자원을 자동으로 해제할 수 있다
 - use() 함수는 AutoCloseable 인터페이스를 구현한 객체에서 사용되며, 자원을 자동으로 해제해준다
 - use() 함수는 확장 함수로 제공되며, 자원을 사용한 후 자동으로 close() 메소드를 호출한다
+
+<hr>
+
+# 8. 함수 다루는 방법
+
+## 함수 선언 문법
+```
+fun max(a: Int, b:Int): Int {
+    if (a > b) {
+       return  a
+    }
+    return b
+}
+
+fun max(a: Int, b:Int): Int {
+    return if (a > b) {
+       a
+    } else {
+        b
+    }
+}
+
+fun max(a: Int, b:Int): Int =
+    if (a > b) {
+       a
+    } else {
+        b
+    }
+
+fun max(a: Int, b:Int) = if (a > b) a else b
+
+Java 람다에서 단일 표현식    
+static int max(int a, int b) = (a, b) -> (a > b) ? a : b;
+```
+- 함수가 하나의 결과값이라면 {}대신 =이 오고 return을 제거해도 된다
+- 분기처리 시 모든 경우가 Int를 반환하기 때문에 return type이 생략 가능하다(추론해준다)
+- =이 아닌 {}을 사용하는 경우에는 반환 타입이 Unit이 아닌 경우 명시적으로 타입을 작성해주어야 한다
+- Java 람다의 단일 표헌식과 느낌상 비슷하다
+- Java에서는 Class안에 Method로 작성되지만 Kotlin은 클래스 안에 있을 수도 있고, 파일 최상단에 있을 수도 있다. 또한, 한 파일 안에 여러 함수들이 있을 수도 있다
+- JavaScript, PHP, Python 등의 문법과 동일하다
+
+## default parameter
+- Java에서는 OverLoading을 활용해서 문제를 해결하지만 같은 메서드를 N개를 만드는 것이 중복되는 느낌이 나고 귀찮을 수 있다.
+- Kotlin에서는 default parameter를 넣어주면 함수를 사용할 때 값은 넣어주지 않는다면 해당 값을 기본값으로 사용할 수 있다
+- Kotlin에서도 물론 OverLoading 기능이 있다
+- JavaScript, PHP, Python 등의 문법과 동일하다
+
+```
+repeat("Hello Kotlin")
+repeat("Hello Kotlin", 3, true)
+repeat("Hello Kotlin", 5, false)
+
+fun repeat(
+    str: String,
+    num: Int = 3,
+    useNewLine: Boolean = true
+) {
+    for (i in 1..num) {
+        if (useNewLine) {
+            println(str)
+        } else {
+            print(str)
+        }
+    }
+}
+```
+
+### Java에는 왜 default parameter가 없을까? (AI가 설명해준 내용)
+- 언어 설계 철학: Java는 단순성과 명시성을 중시한다. 기본 매개변수는 오버로딩, 제네릭, varargs와 함께 사용될 때 메서드 해석 규칙을 복잡하게 만들어 언어 명세(JLS)의 복잡도를 크게 증가시킨다.
+- 바이너리 호환성: 기본값을 컴파일 시점에 인라이닝하면 라이브러리 업데이트 시 재컴파일이 필요하고, 런타임에 처리하려면 JVM 호출 규약의 대대적인 변경이 필요해진다
+- 가독성 문제: Named argument가 없는 Java에서는 중간 매개변수를 건너뛰기 어렵고, 기본값이 호출부에서 보이지 않아 코드 이해가 어려워진다
+- 대안 패턴: Java는 대신 메서드 오버로딩, 빌더 패턴, 매개변수 객체 등의 명시적인 패턴을 권장한다. 이는 더 장황하지만 의도가 명확하고 타입 안전성을 보장한다
+- Java는 편의성보다는 예측 가능성과 명시성을 선택한 것이다 
+
+
+## named argument (parameter)
+- 매개변수의 이름을 통해 직접 지정하는 방식으로 지저오디지 않은 매개변수는 기본값을 사용한다
+- builder를 직접 만들지 않고 builder의 장점을 가질 수 있다
+- Kotlin에서 Java 함수를 가져다 사용할 때는 named argument를 사용할 수 없다
+- JavaScript, PHP, Python 등의 문법과 동일하다
+```
+repeat("Hello World", useNewLine = false)
+
+printFullName("톰", "크루즈") // 톰 크루즈 
+printFullName("크루즈", "톰") // 크루즈 톰
+printFullName(lastName = "크루즈", firstName = "톰") // 톰 크루즈
+
+fun printFullName(firstName: String, lastName: String) {
+    println("${firstName} ${lastName}")
+}
+
+PrintFullName().buiilder()
+.firstName()
+.lastName()
+.build()
+```
+
+### Java에는 왜 named argument가 없을까? (AI가 설명해준 내용)
+- API 계약 문제: Java에서 매개변수 이름은 현재 API의 일부가 아니다. 바이트코드에 기본적으로 포함되지 않고, 라이브러리 개발자는 이름을 자유롭게 변경할 수 있다. Named arguments를 도입하면 매개변수 이름이 공식 API 계약이 되어 이름 변경 시 호환성이 깨진다
+- 메서드 해석 복잡성: Java는 이미 오버로딩, 제네릭, varargs 등으로 복잡한 메서드 해석 규칙을 가지고 있다. Named arguments를 추가하면 모호성 해결 규칙이 기하급수적으로 복잡해진다
+```
+void draw(int width, int height) {}
+void draw(int height, int width) {}
+// draw(height = 10, width = 20); // 어느 메서드를 선택할지?
+```
+- 기본 매개변수와의 시너지 부족: Named arguments의 진가는 기본 매개변수와 함께 사용될 때 발휘된다. Java는 기본 매개변수도 지원하지 않아 named arguments만으로는 효용이 제한적이다
+- 생태계 영향: 리플렉션, 바이트코드 조작, 난독화 도구들이 "이름은 계약이 아니다"라는 전제로 설계되어 있어, 변경 시 광범위한 생태계 업데이트가 필요하다
+- Java는 편의성보다 호환성과 단순성을 선택하여 기존 방식을 유지하고 있다
+
+## 같은 타입의 여러 파라미터 받기(가변인자)
+- Java에서는 가변인자를 ...을 사용하여 처리하지만, Kotlin에서는 vararg 키워드를 사용하여 처리한다
+- 가변인자 함수를 사용하기 위해서는 배열 앞에 스프레드 연산자 (*)를 붙여주어야 한다. Comma 구분을 Java와 동일하다
+
+```
+printAll("Hello", "World", "Java")
+
+val array = arrayOf("Hello", "World", "Kotlin")
+printAll(*array) // spread operator
+    
+fun printAll(vararg strings: String) {
+    for(str in strings) {
+        println(str)
+}
+```
+
+### 가변인자(Varargs)
+- 기본 개념: 가변인자는 메서드의 매개변수를 동적으로 처리할 수 있도록 해준다. 이를 사용하면 메서드 호출 시 전달되는 인자의 개수를 동적으로 변경할 수 있다
+- `public void exampleMethod(String... strings) { // strings는 배열로 처리됨 }`
+- 인수 개수가 가변적이고 유연성이 필요할 때 사용하되, 성능이 중요한 상황에서는 신중히 고려해야 한다
