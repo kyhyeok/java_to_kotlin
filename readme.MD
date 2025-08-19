@@ -547,3 +547,235 @@ fun printAll(vararg strings: String) {
 - 기본 개념: 가변인자는 메서드의 매개변수를 동적으로 처리할 수 있도록 해준다. 이를 사용하면 메서드 호출 시 전달되는 인자의 개수를 동적으로 변경할 수 있다
 - `public void exampleMethod(String... strings) { // strings는 배열로 처리됨 }`
 - 인수 개수가 가변적이고 유연성이 필요할 때 사용하되, 성능이 중요한 상황에서는 신중히 고려해야 한다
+
+<hr>
+
+# 9. 클래스를 다루는 방법
+
+## 클래스와 프로퍼티, 생성자와 init
+```
+Java
+public class JavaPerson {
+    private final String name; // 블변이기 때문에 setter가 불가능하다
+
+    private int age;
+    
+    public JavaPerson(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+```
+
+```
+Kotlin
+class Person constructor(name: String, age: Int){
+    if (age <= 0) {
+        throw new IllegalArgumentException(String.format("나이는 %s일 수 없습니다.", age));
+    }
+    
+    val name: String = name
+    var age: Int = age
+}
+
+class Person(name: String, age: Int){
+    val name: String = name
+    var age: Int = age
+}
+
+class Person(
+    val name: String,
+    var age: Int
+) {
+}
+
+class Person(
+    val name: String,
+    var age: Int
+)
+
+package clazz
+
+fun main() {
+    val person = Person("혁", 5); // 초기화 블록
+
+    println(person.name) // 혁
+    person.age = 10;
+    println(person.age) 
+
+    // 초기화 블록
+    // 첫 번째 부 생성자
+    val person2 = Person("홍길동");
+    println(person2.name) // 홍길동
+    
+    // 초기화 블록
+    // 첫 번째 부 생성자
+    // 두 번째 부 생성자
+    val person3 = Person();
+    println(person3.name) // 임꺽정
+}
+
+class Person (
+    val name: String,
+    var age: Int
+) {
+    init {
+        println("초기화 블록")
+    }
+
+    constructor(name: String): this(name, 1) {
+        println("첫 번째 부 생성자")
+    }
+
+    constructor(): this("임꺽정") {
+        println("두 번째 부 생성자")
+    }
+
+    // constructor(): this("임꺽정")가 constructor(name: String): this(name, 1)를 호출
+    // constructor(name: String): this(name, 1)가 주 생성자를 호출
+}
+```
+- Kotlin은 필드만 만들면 getter, setter를 자동으로 만들어준다
+  - 프로퍼티 = 필드 + getter+ setter
+  - Java record와 비슷한 느낌이다.
+  - 정확히는 Kotlin의 data class가 Java의 record와 매우 흡사하다 (불변)
+- init {}은 생성자가 호출되는 시점에 호출된다
+- 초기 생성자(주 생성자 - primary constructor)를 Class 옆에서 자동으로(생략가능하기 떄문에) 생성되지만 새로운 생성자(부 생성자)는 {}안에 constructor()를 사용해 주어야 한다
+- 주 생성자에 파라미터가 하나도 없을 경우에는 생략 가능하다(자동으로 생성 해주기 때문)
+- 부 생성자는 body를 가질 수 있다. 부 생성자 호출 시 가장 최상단인 주 생성자부터 호출된다
+  - body안에 코드를 추가해 줄 수 있다
+
+### 결과론적으로 부 생성자보다 default parameter 사용을 권장한다 (아래는 AI가 설명해준 내용)
+- 기본 인자가 "주 생성자 + 이름 있는 인자"와 맞물려, 보일러플레이트 없이 명확하고 안전하게 객체를 만들 수 있다
+- 조합 폭발 방지: 선택 인자 조합마다 부 생성자를 늘리지 않아도 된다("텔레스코핑 생성자" 제거)
+  - Telescoping Constructor는 필수 매개변수를 가지는 생성자를 필두로 선택 매개변수를 가지는 생성자를 추가하는 것
+  - 클래스에 OverLoading이 많은 것으로 판단된다
+- 가독성과 의도 표현: 이름 있는 인자와 함께 쓰면 호출부가 읽기 쉽다
+- 단일 초기화 경로: 주 생성자를 하나로 불변식을 한 곳에서 보장
+- 진화 용이성: 파라미터를 추가하되 기본값을 주면 기존 호출부 소스 호환을 지키기 쉬워진다
+- 결론: 기본 인자 + 이름 있는 인자 조합이 가장 Kotlin스러운 방식이다
+
+### Converting과 같은 경우 부 생성자를 사용할 수 있지만 정적 팩토리 메소드를 권장한다 (아래는 AI가 설명해준 내용)
+- 의미 전달: from(), of(), parse(), fromJson() 등 이름으로 변환 의도를 명확히 표현 가능하다. 생성자는 의미 전달이 제한적이다
+- 초기화 집중화: 주 생성자를 private으로 감추고 검증/정규화 로직을 한 곳에 집중. 부 생성자는 로직 분산과 중복 위험이 있다
+- 생성 전략 유연성
+  - 캐시/풀링/싱글턴 재사용
+  - 서브타입 변환
+  - 입력에 따른 구현 선택
+- 실패 처리: null, Result<T>등으로 실패를 값으로 표현이 가능하다. 생성자는 예외만 가능하다
+- API 명료성: 오버로드된 생성자는 호출 시 모호하지만, 팩토리는 이름으로 구분되어 명확하다
+- Kotlin 친화적: 컴패니언/톱레벨/확장 함수로 배치하여 발견성과 사용성이 향상된다
+- 결론: 변환은 의미가 중요하므로 이름으로 의도를 드러내는 정적 팩토리가 더 적합하다
+
+### 결론은 Kotlin에서 부 생성자를 사용할 일은 거의 없지만 서로 다른 super()호출이 꼭 필요할 때는 사용된다고 한다
+
+## 커스텀 getter, setter, backing field
+- 함수를 만들 수 있고, 함수 대신 프로퍼티로 만들 수 있다
+```
+fun main() {
+    val person = Person("hyeok")
+    println(person.name) // HYEOK
+}
+
+class Person(
+    name: String = "혁",
+    var age: Int = 1,
+) {
+
+    val name = name
+        get() = field.uppercase()
+        
+    init {
+        if (age <= 0) {
+            throw IllegalArgumentException("나이는 ${age}일 수 없습니다")
+        }
+        println("초기화 블록")
+    }
+
+    fun isAdult(): Boolean {
+        return this.age >= 20
+    }
+
+    val isAdultBrace: Boolean
+        get() {
+            return this.age >= 20
+        }
+
+    val isAdultCumtom: Boolean
+        get() = this.age >= 20
+}
+```
+### 커스텀 getter
+```
+class Person(
+    name: String = "혁",
+    var age: Int = 1,
+) {
+    val isAdultCumtom: Boolean
+        get() { return this.age >= 20 }
+        
+    val isAdultCumtom: Boolean 
+        get() = this.age >= 20
+}
+```
+
+### backing field
+```
+class Person(
+    name: String = "혁",
+    var age: Int = 1,
+) {
+    var name = name 
+    get() = name.uppercase() // ❌ 무한 루프!
+    
+    var name = name
+        get() = field.uppercase() // field 사용
+            
+    var name = name
+            set(value) {
+                field = value.uppercase()
+            } // set 
+            
+            
+    val upperCaseName: String
+            get() = this.name.uppercase() // custom getter
+}
+```
+- Kotlin에서 프로퍼티에 custom getter를 정의할 때 무한 루프 문제가 발생할 수 있다
+- person.name을 호출하면 name 프로퍼티의 getter가 실행되는데, getter 내부에서 다시 name을 참조하면 또다시 getter가 호출된다. 이렇게 getter가 자기 자신을 계속 호출하는 무한 루프가 발생하게 된다
+- 이 문제를 해결하기 위해 Kotlin은 field라는 예약어를 제공한다. field는 프로퍼티의 실제 저장된 값을 직접 참조하므로 getter를 다시 호출하지 않는다
+- 이렇게 getter/setter에서 사용되는 숨겨진 필드를 backing field라고 부른다
+
+### Kotlin: Custom Getter vs 함수 선택 기준
+- 객체의 속성이라면 Custom Getter를 사용, 객체의 행동이라면 함수를 사용한다
+- 판단 기준
+  - 속성: 객체의 상태나 특성을 나타낸다(이름, 나이, 크기 등)
+  - 행동: 객체가 수행하는 작업이나 동작을 나타낸다(계산, 변환, 출력 등)
+- 사용성
+  - Custom Getter: object.property - 사연스러운 속성 접근
+  - 함수: object.method() - 명시적인 동작 실행
+- 핵심: 외부에서 속성처럼 보이면 custom getter, 동작처럼 보이면 함수를 사용한다
+
+### Kotlin에서 backing field보다 custom getter를 더 많이 사용하는 이유
+- Backing field 방식: 기존 프로퍼티의 저장된 값을 변형, Custom getter 방식: 새로운 프로퍼티처럼 보이는 계산된 값 제공
+- 동일한 결과가 나오지만 더 간단하게 구현할 수 있다
+- API 설계의 자연스러움: Custom getter는 마치 실제 프로퍼티가 하나 더 있는 것처럼 보여주므로 외부에서 사용하기 자연스럽다
+- 사용 빈도의 차이: 대부분의 경우 기존 값의 변형보다는 새로운 계산된 값을 제공하는 것이 일반적이어서, backing field를 사용할 일이 상대적으로 적다
+- 명확한 책임 분리: 원본 데이터는 name, 파생된 데이터는 upperCaseName
+- 결론: 같은 결과를 더 직관적이고 간단하게 달성할 수 있어서 Kotlin에서 custom getter를 선호한다
+
+### custom setter
+- Java에서도 그렇지만 Kotlin에서 역시 setter를 사용하는 것을 지양한다
+- 함수를 만들어서 해당 인스턴스를 변경하는 것을 지향한다
