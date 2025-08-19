@@ -47,7 +47,7 @@ str?.length // null이 아닐 경우에만 length를 호출
 ```
 
 - ?가 safe call이며 ?.에서 ?는 null 체크를 의미한다
-- Safe call은 ?.을 사용하여 null을 체크하고, null이 아닐 경우에만 메소드를 호출하는 방법이다
+- Safe call은 ?.을 사용하여 null을 체크하고, null이 아닐 경우에만 메서드를 호출하는 방법이다
 
 ### Elvis operator
 
@@ -148,7 +148,7 @@ fun startWithNeverNull(str: String?): Boolean {
 - Kotlin의 모든 타입은 Any 타입을 상속받는다. Java의 Object와 유사하다 (모든 객체의 최상위 타입)
 - 모든 Primitive Type의 최상위 타입이기도 하다. 단, Java의 Primitive 타입은 Object를 최상위 타입으로 두지 않는다
 - Any는 null을 포함할 수 없기 때문에 null을 포함하고 싶으면 Any?로 선언해야 한다. null을 포함할 수 있는 타입은 Any?이다
-- Any 타입은 equals(), hashCode(), toString() 메소드를 가지고 있다
+- Any 타입은 equals(), hashCode(), toString() 메서드를 가지고 있다
 
 ### Unit
 
@@ -246,13 +246,13 @@ strIndexing[2] // C
 ### 비교 연산자
 
 -  > , <, >=, <=
-- Java에서는 객체를 비교할 떄 CompareTo 메소드를 사용하지만, Kotlin에서는 비교 연산자를 사용하면 자동으로 compareTo 메소드가 호출된다
+- Java에서는 객체를 비교할 떄 CompareTo 메서드를 사용하지만, Kotlin에서는 비교 연산자를 사용하면 자동으로 compareTo 메서드가 호출된다
 -
 
 ### 동등성
 
 - 두 객체의 값이 같은가
-- Java에서는 equals() 메소드를 사용하지만, Kotlin에서는 == 연산자를 사용한다. ==을 사용하면 간접적으로 equals() 메소드가 호출된다
+- Java에서는 equals() 메서드를 사용하지만, Kotlin에서는 == 연산자를 사용한다. ==을 사용하면 간접적으로 equals() 메서드가 호출된다
 
 ### 동일성
 
@@ -417,7 +417,7 @@ fun parseIntOrThrowNull(str: String): Int? {
 - Kotlin에서는 try with resources 구문이 없다
 - 대신, Kotlin에서는 use() 함수를 사용하여 자원을 자동으로 해제할 수 있다
 - use() 함수는 AutoCloseable 인터페이스를 구현한 객체에서 사용되며, 자원을 자동으로 해제해준다
-- use() 함수는 확장 함수로 제공되며, 자원을 사용한 후 자동으로 close() 메소드를 호출한다
+- use() 함수는 확장 함수로 제공되며, 자원을 사용한 후 자동으로 close() 메서드를 호출한다
 
 <hr>
 
@@ -667,7 +667,7 @@ class Person (
 - 진화 용이성: 파라미터를 추가하되 기본값을 주면 기존 호출부 소스 호환을 지키기 쉬워진다
 - 결론: 기본 인자 + 이름 있는 인자 조합이 가장 Kotlin스러운 방식이다
 
-### Converting과 같은 경우 부 생성자를 사용할 수 있지만 정적 팩토리 메소드를 권장한다 (아래는 AI가 설명해준 내용)
+### Converting과 같은 경우 부 생성자를 사용할 수 있지만 정적 팩토리 메서드를 권장한다 (아래는 AI가 설명해준 내용)
 - 의미 전달: from(), of(), parse(), fromJson() 등 이름으로 변환 의도를 명확히 표현 가능하다. 생성자는 의미 전달이 제한적이다
 - 초기화 집중화: 주 생성자를 private으로 감추고 검증/정규화 로직을 한 곳에 집중. 부 생성자는 로직 분산과 중복 위험이 있다
 - 생성 전략 유연성
@@ -779,3 +779,150 @@ class Person(
 ### custom setter
 - Java에서도 그렇지만 Kotlin에서 역시 setter를 사용하는 것을 지양한다
 - 함수를 만들어서 해당 인스턴스를 변경하는 것을 지향한다
+
+<hr>
+
+# 10. 상속을 다루는 방법
+## 추상 클래스
+- 상위 클래스에 접근하는 키워드는 super로 Java와 동일하다
+- Java와 Kotlin 모두 추상 클래스는 인스턴스화 할 수 없다
+  - 하나 이상의 추상 메서드(미구현)를 가질 수 있어 완전한 객체를 만들 정보가 부족하기 떄문이다. 모든 추상 멤버를 구현한 구체 서브클래스가 있어야만 인스턴스화가 가능하다
+- Kotlin에서는 Java와 다르게 프로퍼티를 override할 경우 Open을 붙여 줘야한다
+- legCount에 대한 상속받은 다른 클래스에서 getter를 override할 때 (custom getter를 활용한 프로퍼티를 만들 때)
+
+### Kotlin에서 open을 붙여아 되는 이유를 무엇일까? (아래는 AI가 설명해준 내용)
+- Final-by-Default
+- Kotlin은 모든 클래스/함수/프로퍼티가 기본적으로 final이다. 오버라이드하려면 명시적으로 open을 선언해야 한다
+- Kotlin 프로퍼티는 getter/setter 메서드로 컴파일되므로, 프로퍼티 오버라이드 = 메서드 오버라이드이다
+- Java 메서드는 기본적으로 오버라이드가 가능(non-final), Kotlin 메서드/프로퍼티는 기본적으로 final. 따라서 open 명시 필요
+- 장점
+  - API 안정성: Fragile base class 문제 방지 (나중에 알아본다)
+  - 우발적 오버라이딩 방지: 의도하지 않은 상속 차단
+  - 성능최적화: 컴파일러가 디버추얼라이제이션 등 최적화 적용 가능 (나중에 알아본다)
+  - 캡슐화 강화: 명시적 설계로 더 안전한 상속
+- 핵심: Kotlin은 안전한 상속을 위해 명시적 open 선언을 요구한다
+```
+abstract class Animal(
+    protected val species: String,
+    protected open val legCount: Int
+) {
+    abstract fun move()
+}
+
+class Cat(
+    species: String, -> 1
+) : Animal(species, 4) -> 3 { -> 2
+    override -> 4 fun move() { 
+        println("사람이 걷고 있습니다")
+    }
+}
+
+class Penguin (
+    species: String,
+) : Animal(species, 2) {
+
+    private val wingCount: Int = 2
+
+    override fun move() {
+        println("펭귄이 걷고 있습니다")
+    }
+
+    override val legCount: Int
+            get() = super.legCount + this.wingCount
+}
+```
+1. convention 차이점은 타입을 슬 때는 변수명에서 한 칸 뛰지 않고 :을 붙인다
+2. 상속받을 때는 한 칸 뛰고 :을 붙인다
+3. 상위 클래스의 생성자를 호출해준다. Cat을 만들 떄 사용한 species field를 바로 넣어준다
+4. @Override 어노테이션이 아닌 override 지시어를 사용한다 (필수)
+
+## 인터페이스
+- Java와 Kotlin 모두 인터페이스를 인스턴스화 할 수 없다
+  - 구현(메서드 본문)과 인스턴스 상태를 갖지 않는 계약이기 때문에 그 자체로는 불완전하다. 따라서 직접 인스턴스화 할 수 없고, 구현 클래스를 통해서만 객체를 만들 수 있다
+```
+interface Swimable {
+    val swimAbility: Int // 인터페이스는 필드가 없고, getter 구현을 상속받는 클래스에게 위임한다
+        // get() = 3 기본 구현 제공 시, 구현 클래스에서 오버라이드하지 않아도 된다
+
+    fun act() {
+        println(swimAbility) // Penguin에서 구현했기 때문에 swimAbility 사용가능
+        println("수영수영")
+    }
+
+    // fun swim() 추상 메서드 가능
+}
+
+interface Flyable {
+    fun act() {
+        println("날아날아")
+    }
+}
+
+class Penguin (
+    species: String,
+) : Animal(species, 2), Swimable, Flyable {
+
+    private val wingCount: Int = 2
+
+    override fun move() {
+        println("펭귄이 걷고 있습니다")
+    }
+
+    override val legCount: Int
+            get() = super.legCount + this.wingCount
+
+    override fun act() {
+        super<Swimable>.act()
+        super<Flyable>.act()
+    }
+}
+```
+- Java에서 상속은 extends (확장)과 implements(구현)으로 나누지만 Kotlin에서는 : 하나로 통일한다 
+- 중복되는 인터페이스를 특정할 떄 `super<타입>.함수` 사용
+- Kotlin에서는 backing field가 없는 프로퍼티를 interface에 만들 수 있다
+
+## 클래스를 상속할 떄 주의할 점
+```
+fun main() {
+    Derived(300) // Base Class → 0 → Derived Class
+}
+
+open class Base(
+    open val number: Int = 100
+) {
+    init {
+        println("Base Class")
+        println(number)  // 0 출력! (예상: 300)
+    }
+}
+
+
+class Derived(
+    override val number: Int,
+) : Base(number) {
+    init {
+        println("Derived Class")
+    }
+}
+
+/*
+open class Base(val number: Int = 100) {  // final로 설계
+    init {
+        println(number)  // 안전하게 예상 값 출력
+    }
+}
+*/
+```
+1. 초기화 순서 - Kotlin에서 하위 클래스의 인스턴스를 생성하면, 상위 클래스의 생성자와 init 블록이 먼저 실행된 후, 하위 클래스의 생성자와 init 블록이 실행된다.
+   - 실행 순서: 상위 클래스 init ⮕ 하위 클래스 init
+2. open 프로퍼티 접근 문제: 상위 클래스의 init 블록이나 생성자에서 open으로 선언된 프로퍼티에 접근할 때 문제가 발생할 수 있다
+   - 문제의 원인: 상위 클래스가 초기화되는 시점에는 하위 클래스에서 override할 프로퍼티가 아직 초기화되지 않은 상태이다
+   - 실제 동작: 상위 클래스 Base의 init 블록이 number를 출력할 때, 아직 하위 클래스 Derived의 number 값(300)이 할당되지 않았다. 따라서 Int 타입의 기본값인 0이 출력된 것이다.
+3. 핵심 주의사항 및 해결책: 상위 클래스를 설계할 때, 생성자나 init 블록 안에서는 하위 클래스에서 override될 가능성이 있는 open 프로퍼티에 접근해서는 안 된다. 이는 예층 불가능한 동작을 유발할 수 있기 때문이다
+    - 권장 사항: 상위 클래스의 초기화 로직에 사용되는 프로퍼티는 open 키워드로 사용하지 않는 것이 안전하다
+
+## 상속 관련 지시어 정리
+- final: override를 할 수 없게 한다. default로 보이지 않게 존재한다
+- open: override를 열어 준다(상속할 수 있게 해준다)
+- abstract: 반드기 override 해야한다
+- override: 상위 타입을 오버라이드 하고 있다
