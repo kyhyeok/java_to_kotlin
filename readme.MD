@@ -926,3 +926,160 @@ open class Base(val number: Int = 100) {  // final로 설계
 - open: override를 열어 준다(상속할 수 있게 해준다)
 - abstract: 반드기 override 해야한다
 - override: 상위 타입을 오버라이드 하고 있다
+
+<hr>
+
+# 11. 접근 제어를 다루는 방법
+
+## 자바와 코틀린의 가시성 제어
+- 가시성 제어: 누가 이 선언을 볼 수 있나를 정하는 규칙이며 Kotlin의 package는 namespace(이름 공간용)이며 가시성은 모듈 기반으로 제어 된다
+- Kotlin에서는 패키지라는 개념을 접근 제어에 사용하지 않는다. Java의 protected나 default(아에 없음)에서 패키지 관련 부분이 제거되고 모듈에 접근 제어하는 기능이 생겼다
+- Java의 기본 접근 지시어는 default, Kotlin의 기본 접근 지시어는 public
+
+### Java에서의 네 가지 접근 제어자
+- public: 모든 곳에서 접근 가능
+- protected: 같은 패키지 또는 하위 클래스에서만 접근 가능
+- default: 같은 패키지에서만 접근 가능
+- private: 선언될 클래스 내에서만 접근 가능
+
+### Kotlin에서의 네 가지 접근 제어자
+- public: 모든 곳에서 접근 가능
+- protected: 선언된 클래스 또는 하위 클래스에서만 접근 가능 (Java에서는 같은 패키지 접근 가능하지만 Kotlin에서는 불가능)
+  - Kotlin에서는 패키지를 namespace를 관리하기 위한 용도로만 사용하고 가시성 제어에는 사용되지 않는다
+  - namespace는 이름 충돌을 막기 위한 이름의 주소/폴더로 같은 이름이라도 어느 네임스페이스에 속했는지로 구분할 수 있다
+- internal: 같은 모듈에서만 접근 가능 (default는 없어짐)
+  - 모듈이란 ㅎ한 번에 함께 컴파일되는 단위로 Gradle 서브 프로젝트, Maven 아티팩트 등이 있다
+  - 하위 모듈에 internal 클래스/함수가 있어도, 상위 모듈(다른 모듈)에서는 가져올 수 없다
+- private: 선언될 클래스 내에서만 접근 가능
+
+```
+namespace
+
+// 서로 다른 패키지의 같은 이름 클래스
+package com.app.util
+class StringUtils { ... }
+
+package com.lib.util  
+class StringUtils { ... }
+
+// 사용 시 구분
+import com.app.util.StringUtils as AppStringUtils
+import com.lib.util.StringUtils as LibStringUtils
+
+laravel의 namespace와 유사한 듯 (?)
+```
+
+## 코틀린 파일의 접근 제어
+- 코틀린은 .kt 파일에 변수, 함수, 클래스 여러개를 바로 만들 수 있다
+- public: 기본값으로 어디서든 접근 가능
+- protected: 파일(최상단)에는 사용 불가능
+  - protected는 클래스 내부 + 그 하위 클래스 에서만 보이도록 하는 가시성. 그래서 파일의 최상위(Top-level)에서는 쑬 수 없다. 최상위 선언은 어떤 클래스의 멤버가 아니기 때문이다(컴파일 에러). 또한 인터페이스 멤버에도 protected는 허용되지 않는다
+- internal: 같은 모듈에서만 접근 가능
+- private: 같은 파일에서만 접근 가능
+
+## 다양한 구성요소의 접근 제어
+- 생성자에 접근 지시어를 사용하려면 constructor를 직접 작성하여야 한다
+```
+class Car internal constructor(
+    val price: Int
+)
+
+class Car protected constructor(val price: Int)
+// Warning: 'protected' visibility is effectively 'private' in a final class
+```
+
+- protected의 접근 범위는 자기 자신(같은 클래스)와 하위 클래스(상속받은 클래스)
+- Final class의 제약: Kotlin 클래스는 기본적으로 final, Final 클래스는 상속 불가능하므로 하위 클래스가 존재할 수 없다
+- 
+```
+class Car protected constructor(val price: Int) {
+    // protected가 실질적으로 private과 동일
+    // 하위 클래스가 없으므로 자기 자신만 접근 가능
+}
+
+// 해결방법 1: open으로 상속 허용
+open class Car protected constructor(val price: Int)
+
+// 해결방법 2: private으로 명시적 변경
+class Car private constructor(val price: Int)
+```
+
+### Java에서 Util 클래스 설계 패턴의 이유
+- Util 클래스는 정적 메서드만 제공하는 것이 목적이므로, 인스턴스가 생성되면 안 된다(완전한 인스턴스화 방지가 목적)
+- Abstract는 직접 인스턴스화를 방지해주고 private constructor는 상속을 통한 우회를 방지해준다
+```
+public abstract class StringUtils {
+    // 추상 클래스는 직접 인스턴스화 불가능
+    // new StringUtils();// 컴파일 에러
+    
+    private StringUtils() {} // 하위 클래스에서도 생성자 호출 차단
+    // 이 부분이 없다면:
+    class MyUtils extends StringUtils {} // 가능 
+    
+    public boolean isDirectoryPath(String path) {
+        return path.endsWith("/");
+    }
+}
+```
+
+```
+StringUtil.kt 파일
+fun isDirectoryPath(path: String): Boolean {
+    return path.endsWith("/")
+}
+
+// 정적 메서드 처럼 사용 가능
+public class JavaMain {
+    public static void main(String[] args) {
+        StringUtilsKt.isDirectoryPath("/");
+    }
+}
+
+```
+- Java의 제약을 극복하기 위한 방어적 설계 패턴인 이유 (AI가 설명해준 내용)
+  - Java: 언어 제약 떄문에 억지로 클래스를 만들고, 그 부작용을 막기 위해 복잡한 방어 코드 작성
+  - Kotlin: 언어 차원에서 적절한 도구들(object, 최상위 함수)을 제공하여 자연스럽고 안전한 방식으로 해결
+- 핵심: Java는 제약을 우회하기 위한 패턴이고 Kotlin은 제약 자체가 ㅇ벗어서 더 직관적인 방법 제공
+
+### 프로퍼티 가시성 제어 방법
+- 전체 프로퍼티 가시성 제어
+```
+class Bar(
+    internal val name: String, // getter만 internal
+    private var owner: String // getter, setter 모두 private
+)
+```
+
+- Getter/Setter 개별 제어
+```
+class Bar(
+    _price: Int
+) {
+    var price = _price
+        private set // getter는 public, setter만 private
+}
+```
+
+- 한 번에 설정: 프로퍼티 선언 앞에 가시성 지정자
+- 개별 설정: private set, internal get 등으로 getter/setter 따로 제어
+```
+class User (
+    (public) val id: String, // 읽기 전용, 모든 곳에서 접근
+    private var password: String, // 완전 비공개
+    _balance: Int
+) {
+    var balance = _balance
+        private set              // 읽기는 공개, 수정을 클래스 내부만
+        
+    fun deposit(amount: Int) {
+        balance += amount        // 내부에서만 수정 가능
+    }
+}
+```
+- 프로퍼티 전체와 getter/setter 개별 가기성 제어로 유연한 캡슐화 구현 가능
+
+## Java와 Kotlin을 함께 사용할 경우 주의할 점
+- Internal은 바이크 코드 상 public이기 때문에 Java 코드에서는 Kotlin 모듈의 internal 코드를 가져올 수 있다
+  - 상위 모듈이 Java, 하위 모듈이 Kotlin일 경우 하위 모듈(Kotlin)의 internal field나 함수는 상위 모듈(Java)에서 사용 가능
+- Kotlin의 protected와 Java의 protected는 다르다. Java는 같은 패키지의 Kotlin protected 멤버에 접근할 수 있다
+  - 같은 패키지의 Java 코드는 그 멤버에 접근 가능하지만, 같은 패키지의 Kotlin 코드는 접근 불가
