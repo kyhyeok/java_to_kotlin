@@ -1386,3 +1386,144 @@ class House(
 - Java 클래스 안의 static 클래스 / Kotlin 클래스 안의 클래스 (바깥 클래스 참조 없음, 권장되는 유형)
 - Java 클래스 안의 클래스 / Kotlin 클래스 안의 inner 클래스 (바깥 클래스 참조 있음)
 ### 핵심: 클래스 안에 클래스를 만들 때는 static 클래스를 사용하라!! (이팩티브 자바)
+
+<hr>
+
+# 14. 다양한 클래스를 다루는 방법
+
+## Data Class
+```
+Java
+public class JavaPersonDto {
+    private final String name;
+    private final int age;
+
+    public JavaPersonDto(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+
+public record JavaPersonDto
+(String name, int age) {
+
+}
+```
+
+- 데이터(필드) 생성자, getter, equals, hashCode, toString을 IDE(Integrated Development Environment)의 도움을 받아서 작성하거나 lombok을 활용해서 작성할 수 있다
+- 클래스가 장황해지거나 추가적인 처리를 해줘야 하는 단점이 있지만 Java의 record를 활용하면 완벽하게 대체 가능하다
+
+```
+Kotlin
+data class PersonDto(
+    val name: String,
+    val age: Int
+)
+```
+- Java의 record나 Kotlin의 data class는 getter, equals, hashCode, toString, getter를 자동으로 제공해준다
+- 단 getter 메서드명이 getName()이 아닌 name()으로 바뀐다. 즉, get없이 필드명으로 대체된다
+- Kotlin의 data class에서 named argument를 활용하면 builder pattern을 쓰는 것 같은 효과도 있다
+
+### 전통적인 Builder Pattern와 Kotlin의 Data Class + Named Arguments (AI가 설명해준 내용)
+```
+전통적인 Builder Pattern
+class User private constructor(
+    val name: String,
+    val age: Int,
+    val email: String,
+    val phone: String,
+    val address: String
+) {
+    class Builder {
+        private var name: String = ""
+        private var age: Int = 0
+        private var email: String = ""
+        private var phone: String = ""
+        private var address: String = ""
+        
+        fun name(name: String) = apply { this.name = name }
+        fun age(age: Int) = apply { this.age = age }
+        fun email(email: String) = apply { this.email = email }
+        fun phone(phone: String) = apply { this.phone = phone }
+        fun address(address: String) = apply { this.address = address }
+        
+        fun build() = User(name, age, email, phone, address)
+    }
+}
+
+// 사용
+val user = User.Builder()
+    .name("John")
+    .age(30)
+    .email("john@email.com")
+    .phone("010-1234-5678")
+    .address("Seoul")
+    .build()
+    
+```
+- Builder Pattern의 핵심 목적
+  - 가독성: 어떤 값이 어떤 필드에 들어가는지 명확
+  - 선택적 매개변수: 일부 필드만 설정 가능
+  - 순서 무관: 매개변수 순서에 구애받지 않음
+  - lombok을 활용하면 깔끔해진다 (Java에서는 @Builder를 많이 사용)
+```
+Data Class + Named Arguments
+data class User(
+    val name: String,
+    val age: Int = 0,
+    val email: String = "",
+    val phone: String = "",
+    val address: String = ""
+)
+
+// 동일한 효과, 훨씬 간단
+val user = User(
+    name = "John",
+    age = 30,
+    email = "john@email.com",
+    phone = "010-1234-5678",
+    address = "Seoul"
+)
+```
+- Named Argument의 장점
+  - Builder Pattern의 이점 제공
+  - 보일러플레이트 코드 제거 (Builder 클래스 불필요)
+  - 컴파일 타임 안전성 (잘못된 매개변수 즉시 발견)
+- Named Argument는 Builder Pattern의 장점을 언어 차원에서 제공하여 복잡한 Builder 구현 없이도 가동성이 있고 유연한 객체 생성 가능. Kotlin이 간결함과 표현력을 동시에 추구하는 철학의 좋은 예시
+- Lombok을 사용하면 Builder Pattern의 보일러플레이트 코드가 어느정도 제거되지만 Named Argument는 도구 의존성 없이 언어 차원에서 Builder Pattern의 이점을 제공주므로 Lombok Builder보다 Named Argument가 선호된다
+  - 더 안정적 (의존성/설정 이슈 없음), 더 투명함 (생성된 코드가 아닌 실제 코드), 더 효율적 (런타임 오버헤드 없음), 더 일관됨 (함수 호출과 동일 문법)
+
+## Enum Class
+```
+Java
+public enum JavaCountry {
+    KOREA("KO"),
+    AMERICA("US");
+    
+    private final String code;
+
+    JavaCountry(String code) {
+        this.code = code;
+    }
+
+    public String getCode() {
+        return code;
+    }
+}
+```
+
+- 추가적인 클래스를 상속받을 수 없다
+- 인터페이스는 구현할 수 있으며, 각 코드가 싱글톤이다 `KOREA("KO"), AMERICA("US");`
+
+```
+Kotlin
+enum class Country(
+    private val code: String
+) {
+    KOREA("KO"),
+    AMERICA("US"),
+}
+```
+### when과 Enum Class 
+
+## Sealed Class, Sealed Interface

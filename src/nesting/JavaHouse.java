@@ -15,17 +15,17 @@ public class JavaHouse {
         return livingRoom;
     }
     // 권장되지 않는 내부 클래스
-    public class LivingRoom {
-        private double area;
-
-        public LivingRoom(double area) {
-            this.area = area;
-        }
-
-        public String getAddress() {
-            return JavaHouse.this.address; // 바깥 클래스와 연결되어 있다
-        }
-    }
+//    public class LivingRoom {
+//        private double area;
+//
+//        public LivingRoom(double area) {
+//            this.area = area;
+//        }
+//
+//        public String getAddress() {
+//            return JavaHouse.this.address; // 바깥 클래스와 연결되어 있다
+//        }
+//    }
 
 
     // 권장되는 static 중첩 클래스
