@@ -1247,12 +1247,13 @@ object Singleton {
 - 익명 클래스: 특정 인터페이스나 클래스를 상속받은 구현체를 일회성으로 사용할 때 쓰는 클래스
 
 ```
-Java
+interface
 public interface Movable {
     void move();
     void fly();
 }
 
+Java
 public static void main(String[] args) {
     moveSomething(new Movable() {
         @Override
@@ -1291,3 +1292,97 @@ private fun moveSomething(movable: Movable) {
     movable.fly()
 }
 ```
+
+<hr>
+
+# 13. 중첩 클래스를 다루는 방법
+
+## 중첩 클래스의 종류
+- 중첩클래스는 Static 중첩 클래스와 Inner 클래스를 이야기하는 경우가 많다
+  - Static 중첩 클래스는 독립적이고 재사용이 가능한 헬러 클래스
+  - Inner 클래스는 외부 클래스와 밀접한 관계의 구현체
+  - Local/Anonymous 클래스는 특수한 상황에서만 사용하고, 대부분 람다나 메서드 차조로 대체 가능한 이유로 실무에서 많이 사용되지 않는다
+
+### Static을 사용하는 중첩 클래스 (권장되는 중첩 클래스)
+- 클래스 안에 static을 붙인 클래스로 밖의 클래스 직접 참조 불가
+
+### Static을 사용하지 않는 중첩 클래스 (권장되는 않는 중첩 클래스)
+- Inner Class(내부 클래스): 밖의 클래스 직접 참조 가능 (아래는 이펙티브 자바 일부)
+  - 내부 클래스는 숨겨진 외부 클래스 정보를 가지고 있어, 참조를 해지하지 못하는 경우 메모리 누수가 생길 수 있고, 이를 디버깅 하기 어렵다
+  - 내부 클래스의 직렬화 형태가 명확하게 정의되자 않아 직렬화에 있어 한계가 명확하다
+  - 클래스 안에 클래스를 만들때는 static 클래스를 사용하라
+  - 내부 클래스가 외부 클래스를 참조함으로 인해 생기는 몇가지 문제점이 있다
+- Local Class(지역 클래스): 메서드 내부의 클래스를 정의 (메서드 내부에서만 사용 가능)
+- Anonymous Class(익명 클래스): 일회성 클래스 (선언 지점에서만 사용 가능 - 람다로 많이 대체하면사 많이 사용하지 않음)
+
+- Kotlin은 Inner Class의 Guide를 충실히 따르고 있다
+```
+Java
+public class JavaHouse {
+
+    private String address;
+
+    private LivingRoom livingRoom;
+
+    public JavaHouse(String address) {
+        this.address = address;
+        this.livingRoom = new LivingRoom(10);
+    }
+
+    public LivingRoom getLivingRoom() {
+        return livingRoom;
+    }
+
+
+    public static class LivingRoom { 
+        private double area;
+
+        public LivingRoom(double area) {
+            this.area = area;
+        }
+    }
+    
+    // 권장되지 않는 내부 클래스
+    public class LivingRoom {
+        private double area;
+
+        public LivingRoom(double area) {
+            this.area = area;
+        }
+
+        public String getAddress() {
+            return JavaHouse.this.address; // 바깥 클래스와 연결되어 있다
+        }
+    }
+}
+
+Kotlin
+class House(
+    private val address: String,
+    private val livingRoom: LivingRoom,
+) {
+
+    // 코틀린은 기본적으로 바깥 클래스에 대한 연결이 없는 중첩 클래스를 만들어 준다
+    class LivingRoom(
+        private val area: Double
+    )
+}
+
+// 권장되지 않는 내부 클래스
+class House(
+    private val address: String,
+    private val livingRoom: LivingRoom,
+) {
+
+    inner class LivingRoom(
+        private val area: Double
+    ) {
+        val address: String
+        get() = this@House.address
+    }
+}
+```
+- 기본적으로 바깥 클래스를 참조하지 않는다. 바깥 클래스를 참조하고 싶다면 inner 키워드를 추가해야 한다
+- Java 클래스 안의 static 클래스 / Kotlin 클래스 안의 클래스 (바깥 클래스 참조 없음, 권장되는 유형)
+- Java 클래스 안의 클래스 / Kotlin 클래스 안의 inner 클래스 (바깥 클래스 참조 있음)
+### 핵심: 클래스 안에 클래스를 만들 때는 static 클래스를 사용하라!! (이팩티브 자바)
