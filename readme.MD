@@ -1494,12 +1494,17 @@ val user = User(
   - 더 안정적 (의존성/설정 이슈 없음), 더 투명함 (생성된 코드가 아닌 실제 코드), 더 효율적 (런타임 오버헤드 없음), 더 일관됨 (함수 호출과 동일 문법)
 
 ## Enum Class
+
+### Enum의 특징
+- 추가적인 클래스를 상속받을 수 없다
+- 인터페이스는 구현할 수 있으며, 각 코드가 싱글톤이다, `KOREA("KO"), AMERICA("US");`
 ```
 Java
 public enum JavaCountry {
+    
     KOREA("KO"),
     AMERICA("US");
-    
+
     private final String code;
 
     JavaCountry(String code) {
@@ -1509,21 +1514,112 @@ public enum JavaCountry {
     public String getCode() {
         return code;
     }
+    
+    private static void handleCountry(JavaCountry country) {
+        if (country == JavaCountry.KOREA) {
+            System.out.println("KOREA 로직");
+        }
+
+        if (country == JavaCountry.AMERICA) {
+            System.out.println("AMERICA 로직");
+        }
+        
+        // 새로운 enum 값 추가 시 컴파일러가 알려주지 않음
+        // else 처리가 애매함 (enum이므로 다른 값이 올 가능성 없음)
+    }
+    
 }
 ```
 
-- 추가적인 클래스를 상속받을 수 없다
-- 인터페이스는 구현할 수 있으며, 각 코드가 싱글톤이다 `KOREA("KO"), AMERICA("US");`
+### Java Enum의 문제점
+- 가독성 저하: if-else 체인이 길어짐
+- 누락 감지 불가: 새 enum 값 추가 시 경고 없음
+- 불필요한 else: enum 특성상 다른 값이 올 수 없는데도 방어 코드 필요
 
 ```
 Kotlin
+fun handleCountry(country: Country) {
+    when (country) {
+        Country.KOREA -> println("Korea 로직")
+        Country.AMERICA -> println("AMERICA 로직")
+        // else 불필요 - 컴파일러가 모든 케이스 확인
+    }
+}
+
+// 완전성 검사  (Exhaustive Check)
 enum class Country(
     private val code: String
 ) {
     KOREA("KO"),
     AMERICA("US"),
+    JAPAN("JP"), // 추가
 }
-```
-### when과 Enum Class 
+// 컴파일르가 즉시 경고: "when expression must be exhaustive"
+
+Return 타입에서의 강력함
+fun handleCountry(country: Country) {
+    return when (country) {
+        Country.KOREA -> println("Korea 로직")
+        Country.AMERICA -> println("AMERICA 로직")
+        // JAPAN 케이스 누락 시 컴파일 에러
+    }
+}
+``` 
+- Kotlin의 when은 타입 안정성과 가도성을 동시에 제공하여 enum 분기 처리를 훨씬 안전하고 편리하게 만들어 준다
 
 ## Sealed Class, Sealed Interface
+- Sealed의 뜻은 봉인, 포장
+- The body was sealed in a lead coffin - 그 시신은 납으로 된 관 속에 넣어져 밀봉되었다
+- The organs are kept in sealed plastic bags - 그 장기들은 밀봉된 비닐봉지 속에 보관된다
+
+### Sealed Class 탄생 배경
+- 문제: "상속 가능한 추상클래스를 만들고 싶지만 외부 라이브러리 사용자가 함부러 상속하는 것은 막고 싶다"
+- 해결: 내부에서만 제어 가능한 제한된 상속 계층 구조를 만들자
+- 컴파일 타임 제한
+```
+sealed class Person(
+    val name: String,
+    val age: Int
+) 
+
+class Kim: Person("Kim", 10)
+class Park: Person("Park", 20)
+class Lee: Person("Lee", 30)
+
+// 외부에서 추가 상속 불가능
+```
+
+- 완전한 분기 처리
+```
+private fun handlePerson(person: Person) {
+    when(person) {
+        is Kim -> println("Kim")
+        is Park -> println("Park")
+        is Lee -> println("Lee")
+        // else 불필요 - 컴파일러가 모든 타입을 알고 있음
+    }
+}
+```
+- 변경 감지
+  - 새로운 하위 클래스 추가/제거 시 컴파일 에러로 알림
+  - when 표현식이 누락된 케이스 자동 감지
+  
+- 실용적 활용 (Entity/DTO 추상화)
+```
+sealed class ApiResponse<T>
+
+data class Success<T>(val data: T) : ApiResponse<T>()
+data class Error<T>(val code: Int, val message: String) : ApiResponse<T>()
+object Loading : ApiResponse<Nothing>()
+
+// 타입 안전한 분기 처리
+fun handleResponse(response: ApiResponse<User>) = when (response) {
+    is Success -> showUser(response.data)
+    is Error -> showError(response.message)
+    is Loading -> showLoading()
+}
+```
+- 라이브러리 개발자는 안전한 API설계가 가능
+- 사용자는 예측 가능하고 완전한 분기 처리 가능
+- 컴파일러는 타입 안정성을 보장
+- Sealed Class는 enum의 안전성과 클래스의 유연성을 결합한 강력한 도구이다

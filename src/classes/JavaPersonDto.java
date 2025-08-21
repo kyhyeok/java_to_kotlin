@@ -2,7 +2,7 @@ package classes;
 
 import java.util.Objects;
 
-public class JavaPersonDto {
+public final class JavaPersonDto {
     private final String name;
     private final int age;
 
