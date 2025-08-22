@@ -85,7 +85,7 @@ fun calculate(number: Long?): Long {
 
 ## null 아님 단언
 
-- nullable type이지만 아무리 생각해도 null이 될 수 없는 경우 에는 !!를 사용하여 null이 아님을 단언할 수 있다
+- nullable type이지만 아무리 생각해도 null이 될 수 없는 경우에는 !!를 사용하여 null이 아님을 단언할 수 있다
 - 생성일(createdAt)은 코드 레벨이나 DB 레벨에서 입력을 하기 때문에 null이 될 수 없다고 확신할 수 있다면, !!를 사용하여 null이 아님을 단언할 수 있다
 - 이럴 경우 Safe call을 매번 사용하는 것보다 코드가 더 간결해진다
 - null이 들어오면 NPE(Null Pointer Exception)가 발생할 수 있으므로 주의해야 한다

@@ -33,5 +33,4 @@ public class JavaMain {
         }
         return str.startsWith("A");
     }
-
 }
