@@ -1623,3 +1623,336 @@ fun handleResponse(response: ApiResponse<User>) = when (response) {
 - 사용자는 예측 가능하고 완전한 분기 처리 가능
 - 컴파일러는 타입 안정성을 보장
 - Sealed Class는 enum의 안전성과 클래스의 유연성을 결합한 강력한 도구이다
+
+<hr>
+
+# 15. 배열과 컬렉션을 다루는 방법
+
+## 배열
+- 많이 사용하지 않는다. 이펙티브 자바에서도 '배열보다 리스트를 사용하라'고 말한다. 하지만 알아보자
+```
+val array = arrayOf(100, 200)
+for(i in array.indices) {
+    println(" ${i} ${array[i]}")
+}
+
+for((idx, value) in array.withIndex()) {
+    println(" $idx $value")
+}
+
+val newArray = array.plus(300) // 값 추가
+for((idx, value) in newArray.withIndex()) {
+    println(" $idx $value")
+}
+```
+
+## 코틀린에서의 Collection - List, Set, Map
+- 컬렉션을 만들어 줄때는 이 컬렉션이 불변인지, 가변인지 꼭 선언해주어야 한다
+  - "코드의 의도를 타입으로 표현"하면 컬렉션을 받는 함수나 변수만 봐도 수정 가능 여부를 즉시 알 수 있어 더 안전하고 예측 가능한 코드 작성 가능
+
+### 가변 컬렉션과 불변 컬렉션의 차이
+- 가변(Mutable) 컬렉션: 컬렉션에 element를 추가, 삭제할 수 있다
+- 불변(Immutable) 컬렉션: 컬렉션에 element를 추가, 삭제할 수 없다
+  - 불변 컬렉션이라 하더라도 참조 타입의 element 필드는 바꿀 수 있다.
+  - 불변 리스트에 Money 객체 두 개가 있다 (price 1,000원, price 2,000원)
+  - 새로운 Money를 추가/삭제는 불가능하지만, list.get(0)으로 첫 번째 Money에 접근해서 price를 5,000원으로 변경하는 것은 가능하다
+  - 즉, 블변 컬렉션은 요소의 추가/삭제만 막을 뿐, 내부 객체의 필드 변경은 막지 않는다
+
+### Collection - List
+#### 생성
+```
+fun main() {
+    // 불변 리스트
+    // listOf를 통해 '불변 리스트'를 생성
+    val numbers = listOf(100, 200) // 타입추론을 해주기 떄문에 타입 생략 가능
+
+    val emptyList = emptyList<Int>() // 비어있기 때문에 type을 명시적으로 적어주어야 한다
+
+    printNumbers(emptyList())
+    // emptyList()이지만 printNumbers(매개변수)를 통해 타입 추론이 가능해서 type 생략 가능
+    
+    // 가변 리스트 - Java에서의 Collection List 기능들을 사용 가능
+    val mutableNumbers = mutableListOf(100, 200)
+    mutableNumbers.add(300) // 추가 가능
+}
+
+private fun printNumbers(numbers: List<Int>) { }
+```
+
+#### Java
+```
+final List<Integer> numbers = List.of(100, 200);
+
+// 하나를 가져오기
+System.out.println(numbers.get(0));
+
+// For Each
+for (Integer number : numbers) {
+    System.out.println(number);
+}
+
+// 전통적인 For문
+for (int i = 0; i < numbers.size(); i++) {
+    System.out.printf("%s %s \n", i, numbers.get(i));
+}
+```
+
+#### Kotlin
+```
+fun main() {
+    val numbers = listOf(100, 200)
+    // 하나를 가져오기
+    numbers.get(0) // 가능은 함
+    numbers[0] // 배열처럼도 가능
+    
+    for (number in numbers) {
+        println(number)
+    }
+    
+    for ((idx, value) in numbers.withIndex()) {
+        println(" $idx $value")
+    }
+}
+```
+- 변수를 설정할 때와 마찬가지로 간단한 Tip은 먼저 불변 리스트를 만들고, 꼭 필요한 경우 가변 리스트로 변경하는 것이 코드가 깔끔해지고 불필요한 가변 리스트 사용이 줄어잔다 
+
+### Collection - Set
+- 집합은 List와 다르게 순서가 없고, 같은 element는 하나만 존재할 수 있다
+- 자료구조적인 의미만 제외하면 모든 기능이 List와 비슷하다
+- 
+```
+fun main() {
+    val numbers = setOf(100, 200)
+
+    val mutableNumbers = mutableSetOf(100, 200)
+
+    // For Each
+    for (number in numbers) {
+        println(number)
+    }
+
+    // 전통적인 for문
+    for ((idx, value) in numbers.withIndex()) {
+        println(" $idx $value")
+    }
+}
+```
+- 기본 구현체는 LinkedHashSet이다
+
+### Collection - Map
+- Kotlin도 동일하게 MutableMap을 만들어 넣을 수도 있고, 정적 팩토리 메소드를 바로 활용할 수도 있다
+
+```
+fun main() {
+    val oldMap = mutableMapOf<Int, String>() // 타입을 추론할 수 없어, 타입 지정
+    oldMap.put(1, "Monday") // Java처럼 put사용
+    oldMap.put(2, "Tuesday")
+
+    oldMap[3] = "Wednesday" // map[key] = value 사용
+
+    // 중위 호출 방식으로 mapOf는 Pair를 받는 함수이다
+    // mapOf(key to value)를 사용해 불변 map 생성
+    mapOf(1 to "Monday", 2 to "Tuesday", 3 to "Wednesday")
+
+    for (key in oldMap.keys) {
+        println("$key -> ${oldMap[key]}")
+    }
+
+    for ((key, value) in oldMap.entries) {
+        println("$key -> $value")
+    }
+}
+```
+
+## 컬렉션의 null 가능성, Java와 함께 사용하기
+- ? 위치에 따라 null 가능성 의미가 달라지므로 차이를 잘 이해해아 한다
+- List<Int?>: 리스트에 null이 들어갈 수 있지만, 리스트는 절대 null이 아님
+```
+List<Int?> - 요소만 nullable
+
+val list: List<Int?> listOf(1, 2, null, 4)
+// 리스트 자체는 절대 null이 아니지만 리스트 요소는 null 가능
+
+println(list.size) // 4 (항상 안전)
+println(list[2]) // null (요소가 null일 수 있음)
+println(list[0]!! + 10) // 11 (null 체크 후 사용)
+```
+
+- List<Int>?: 리스트에는 null이 들어갈 수 없지만, 리스트는 null일 수 있음
+```
+List<Int>? - 리스트만 nullable
+
+val list: List<Int>? = null // 또는 listOf(1, 2, 3)
+// 리스트 자체가 null일 가능성이 있지만 리스트 요소는 null 불가능
+
+println(list?.size) // null (리스트가 null일 수 있음)
+list?.let {
+    println(it[0] + 10) // 요소를 확실히 Int 타입
+}
+```
+
+- List<Int?>?: 리스트에 null이 들어갈 수도 있고, 리스트가 null일 수도 있음
+```
+List<Int?>? - 둘 다 nullable
+
+val list: List<Int?>? = null // 또는 listOf(1, null, 3)
+// 리스트 자체가 null가능하며 리스트 요소도 null 가능
+
+list?.let { safeList ->
+    safeList.forEach { element ->
+        element?.let { value -> // 이중 null 체크 필요
+            println(value + 10)
+        }
+    }
+}
+```
+
+- 실용적 사용 예시 (함수 파라미터에서의 활용)
+```
+// 요소만 nullable - 빈 값들을 처리할 때
+fun processUserNames(names: List<String?>) {
+    names.filterNotNull().forEach { name ->
+        println("Hello, $name")
+    }
+}
+
+// 리스트만 nullable - 선택적 데이터를 받을 때
+fun processOptionalData(data: List<String>?) {
+    data?.forEach { item -> // item은 확실히 String 
+        println(item.uppercase())
+    }
+}
+```
+
+- 반환 타입에서의 활용
+```
+// 빈 리스트 vs null로 의미 구분
+fun findUsers(query: String): List<User>? {
+    return if(query.isBlock()) null // 검색 안함
+        else userRepository.search(qeury) // 빈 리스트 or 결과 리스트
+}
+```
+- ?의 위치가 null 가능성의 범위를 결정
+  - 타입 안에 ?: 해당 타입의 값이 null 가능
+  - 타입 밖에 ?: 전체 객체가 null 가능
+- 이 두 개의 차이를 이해하면 더 정확한 타입 설계와 언전한 null처리 가능
+
+
+### Java는 읽기 전용 컬렉션과 변경 가능 컬렉션을 구분하지 않는다
+
+#### Java는 nullable 타입과 non-nullable 타입을 구분하지 않는다
+```
+// Kotlin: 불변 리스트 생성
+val immutableList = listOf("A", "B", "C")
+javaMethod(immutableList) // Java로 전달
+
+// Java: 컬렉션 가변성을 구분하지 않음
+public void javaMethod(List<String> list) {
+    list.add("D") // Kotlin의 불변성 가정을 위반
+}
+```
+- Kotlin의 불변 리스트가 Java에 의해 변경되어 예상치 못한 동작 발생
+
+#### Java는 nullable 타입과 non-nullable 타입을 구분하지 않는다
+```
+// Kotlin: non-null 리스트 생성
+val nonNullList = mutableListOf("A", "B", "C")
+javaMethod(nonNullList) // Java로 전달
+
+// Java: null 안전성을 구분하지 않음
+public void javaMethod(List<String> list) {
+    list.add(null) // Kotlin의 non-null 가정을 위반
+}
+```
+- Kotlin에서 null 체크 없이 접근 시 런탕임 에러 위험
+
+#### 해결책 - Collections.unmodifiableXXX() 활용
+```
+import java.util.COllections
+
+// Kotlin에서 Java로 전달 시 수정 방지
+val protectedList = Collections.unmodifiableList(originalList)
+javaMethod(protectedList)
+```
+- Java에서 add(), remove() 등 호출 시 UnsupportedOperationException 발생
+- Kotlin 컬렉션의 불변성을 Java 레벨에서도 보장
+
+#### 실용적 패턴
+```
+classs KotlinService {
+    private val items = mutableListOf("A", "B", "C")
+    
+    // Java에 안전하게 노출
+    fun getItemsForJava(): List<String> {
+        return Collections.unmodifiableList(items)
+    }
+}
+```
+- Kotlin 컬렉션이 Java에서 호출되면 내용이 변할 수 있음을 감안하고, Collections.unmodifiableXXX()를 활용하여 변경 자체를 원천 차단하는 것이 안전
+- 물론 다른 방어코드들도 많이 있다 (방어적 복사, 명시적 타입 검증, Java에서 @Nullable 어노테이션 사용 등)
+
+### Kotlin에서 Java 컬렉션을 가져다 사용할 때 플랫폼 타입을 신경써야 한다
+
+#### Java에서 Kotlin으로 컬렉션 전달
+```
+// Java
+public List<Integer> getNumbers() {
+    returhn Arrays.asList(1, 2, 3);
+}
+
+// Kotlin에서 받을 때 - 어떤 타입인지 불분명
+val numbers = javaService.getNumbers() // List<Int!> (플랫폼 타입)
+```
+- Kotlin은 List<Int?>, List<Int>?, List<Int?>? 중 어떤 것인지 알 수 없다
+
+#### 해결 방법
+- Java 코드 분석
+```
+// Java 코드를 직접 확인하여 맥락 파악
+public List<Integer> getValidNumbers() {
+    // 구현을 보고 null 반환 여부, null 요소 포함 여부 확인
+    return validNumbers;
+}
+```
+
+- 적절한 Wrapping으로 영향 범위 최소화
+```
+class JavaCollectionWrapper {
+    private val javaService = javaService()
+    
+    // Java 호출 지점을 래핑하여 타입 명확화
+    fun getNumbers() :List<Int> {
+        return javaService.getNumbers()
+            ?.filterNotNull() // null 요소 제거
+            ?: emptyList() // null 리스트 처리
+    }
+    
+    fun getSafeNumbers(): List<Int?> {
+        return javaService.getNumbers() ?: emptyList()
+    }
+}
+```
+
+- 방어적 검증
+```
+fun processJavaList() {
+    val javaList = javaService.getNumbers()
+    
+    // 안전한 사용을 위한 검증
+    val safeList: List<Int> = when {
+        javaList == null -> emptyList()
+        else -> javaList.filterNotNull()
+    }
+    
+    // 안전하게 사용
+    safeList.forEach { number ->
+        println(number * 2) // null 걱정 없음
+    }
+}
+```
+- 플랫폼 타입 대응 원칙
+  - Java 코드 분석: 구현체를 직접 확인하여 null 가능성 파악
+  - 경계에서 래핑: Java 호출 지점을 감싸서 타입 안전성 확보
+  - 영향범위 최소화: 플랫폼 타입이 Kotlin 코드 전체로 퍼지지 않도록 차단
+  - 방어적 검증: null 체크와 필터링으로 안정성 확보
+- Java 컬렉션을 가져올 때는 플랫폼 타입의 모호함을 인지하고, 적절한 래핑과 검증을 통해 타입 안전성을 확보하는 것이 중요
