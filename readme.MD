@@ -76,7 +76,7 @@ public long calculate(Long number) {
 }
 
 Kotlin
-fun calculate(number: Long?): Long {
+functions calculate(number: Long?): Long {
     number ?: return 0
     
     // 다음 로직
@@ -91,7 +91,7 @@ fun calculate(number: Long?): Long {
 - null이 들어오면 NPE(Null Pointer Exception)가 발생할 수 있으므로 주의해야 한다
 
 ```
-fun startWithNeverNull(str: String?): Boolean {
+functions startWithNeverNull(str: String?): Boolean {
     return str!!.startsWith("A")
 }
 ```
@@ -165,7 +165,7 @@ fun startWithNeverNull(str: String?): Boolean {
 - 무조건 예외를 반환하는 암수 / 무한 루프 함수 등에서 사용된다
 
 ```
-fun fail(message: String): Nothing {
+functions fail(message: String): Nothing {
     throw IllegalArgumentException(message)
 }
 ```
@@ -275,12 +275,12 @@ if (fun2() && fun1() {
     println("본문입니다")
 }
 
-fun fun1(): Boolean {
+functions fun1(): Boolean {
     println("fun1() 호출됨")
     return true
 }
 
-fun fun2(): Boolean {
+functions fun2(): Boolean {
     println("fun2() 호출됨")
     return false
 }
@@ -401,7 +401,7 @@ for (i in 1..5 step 2) {
     - Kotlin에서는 null을 허용하는 타입은 ?를 붙여서 선언하고, null을 체크하는 방법은 if문과 동일하게 Expression으로 간주되어서 return을 한 번만 사용해도 된다
 
 ```
-fun parseIntOrThrowNull(str: String): Int? {
+functions parseIntOrThrowNull(str: String): Int? {
     return try {
         str.toInt()
     } catch (e: NumberFormatException) {
@@ -431,7 +431,7 @@ fun parseIntOrThrowNull(str: String): Int? {
 - Kotlin에서는 try with resources 구문이 없다
 - 대신, Kotlin에서는 use() 함수를 사용하여 자원을 자동으로 해제할 수 있다
 - use() 함수는 AutoCloseable 인터페이스를 구현한 객체에서 사용되며, 자원을 자동으로 해제해준다
-- use() 함수는 확장 함수로 제공되며, 자원을 사용한 후 자동으로 close() 메서드를 호출한다
+- use() 함수는 확장함수로 제공되며, 자원을 사용한 후 자동으로 close() 메서드를 호출한다
 
 <hr>
 
@@ -440,14 +440,14 @@ fun parseIntOrThrowNull(str: String): Int? {
 ## 함수 선언 문법
 
 ```
-fun max(a: Int, b:Int): Int {
+functions max(a: Int, b:Int): Int {
     if (a > b) {
        return  a
     }
     return b
 }
 
-fun max(a: Int, b:Int): Int {
+functions max(a: Int, b:Int): Int {
     return if (a > b) {
        a
     } else {
@@ -455,14 +455,14 @@ fun max(a: Int, b:Int): Int {
     }
 }
 
-fun max(a: Int, b:Int): Int =
+functions max(a: Int, b:Int): Int =
     if (a > b) {
        a
     } else {
         b
     }
 
-fun max(a: Int, b:Int) = if (a > b) a else b
+functions max(a: Int, b:Int) = if (a > b) a else b
 
 Java 람다에서 단일 표현식    
 static int max(int a, int b) = (a, b) -> (a > b) ? a : b;
@@ -487,7 +487,7 @@ repeat("Hello Kotlin")
 repeat("Hello Kotlin", 3, true)
 repeat("Hello Kotlin", 5, false)
 
-fun repeat(
+functions repeat(
     str: String,
     num: Int = 3,
     useNewLine: Boolean = true
@@ -524,7 +524,7 @@ printFullName("톰", "크루즈") // 톰 크루즈
 printFullName("크루즈", "톰") // 크루즈 톰
 printFullName(lastName = "크루즈", firstName = "톰") // 톰 크루즈
 
-fun printFullName(firstName: String, lastName: String) {
+functions printFullName(firstName: String, lastName: String) {
     println("${firstName} ${lastName}")
 }
 
@@ -561,7 +561,7 @@ printAll("Hello", "World", "Java")
 val array = arrayOf("Hello", "World", "Kotlin")
 printAll(*array) // spread operator
     
-fun printAll(vararg strings: String) {
+functions printAll(vararg strings: String) {
     for(str in strings) {
         println(str)
 }
@@ -634,7 +634,7 @@ class Person(
 
 package clazz
 
-fun main() {
+functions main() {
     val person = Person("혁", 5); // 초기화 블록
 
     println(person.name) // 혁
@@ -705,7 +705,7 @@ class Person (
     - 입력에 따른 구현 선택
 - 실패 처리: null, Result<T>등으로 실패를 값으로 표현이 가능하다. 생성자는 예외만 가능하다
 - API 명료성: 오버로드된 생성자는 호출 시 모호하지만, 팩토리는 이름으로 구분되어 명확하다
-- Kotlin 친화적: 컴패니언/톱레벨/확장 함수로 배치하여 발견성과 사용성이 향상된다
+- Kotlin 친화적: 컴패니언/톱레벨/확장함수로 배치하여 발견성과 사용성이 향상된다
 - 결론: 변환은 의미가 중요하므로 이름으로 의도를 드러내는 정적 팩토리가 더 적합하다
 
 ### 결론은 Kotlin에서 부 생성자를 사용할 일은 거의 없지만 서로 다른 super()호출이 꼭 필요할 때는 사용된다고 한다
@@ -715,7 +715,7 @@ class Person (
 - 함수를 만들 수 있고, 함수 대신 프로퍼티로 만들 수 있다
 
 ```
-fun main() {
+functions main() {
     val person = Person("hyeok")
     println(person.name) // HYEOK
 }
@@ -735,7 +735,7 @@ class Person(
         println("초기화 블록")
     }
 
-    fun isAdult(): Boolean {
+    functions isAdult(): Boolean {
         return this.age >= 20
     }
 
@@ -849,13 +849,13 @@ abstract class Animal(
     protected val species: String,
     protected open val legCount: Int
 ) {
-    abstract fun move()
+    abstract functions move()
 }
 
 class Cat(
     species: String, -> 1
 ) : Animal(species, 4) -> 3 { -> 2
-    override -> 4 fun move() { 
+    override -> 4 functions move() { 
         println("사람이 걷고 있습니다")
     }
 }
@@ -866,7 +866,7 @@ class Penguin (
 
     private val wingCount: Int = 2
 
-    override fun move() {
+    override functions move() {
         println("펭귄이 걷고 있습니다")
     }
 
@@ -890,16 +890,16 @@ interface Swimable {
     val swimAbility: Int // 인터페이스는 필드가 없고, getter 구현을 상속받는 클래스에게 위임한다
         // get() = 3 기본 구현 제공 시, 구현 클래스에서 오버라이드하지 않아도 된다
 
-    fun act() {
+    functions act() {
         println(swimAbility) // Penguin에서 구현했기 때문에 swimAbility 사용가능
         println("수영수영")
     }
 
-    // fun swim() 추상 메서드 가능
+    // functions swim() 추상 메서드 가능
 }
 
 interface Flyable {
-    fun act() {
+    functions act() {
         println("날아날아")
     }
 }
@@ -910,14 +910,14 @@ class Penguin (
 
     private val wingCount: Int = 2
 
-    override fun move() {
+    override functions move() {
         println("펭귄이 걷고 있습니다")
     }
 
     override val legCount: Int
             get() = super.legCount + this.wingCount
 
-    override fun act() {
+    override functions act() {
         super<Swimable>.act()
         super<Flyable>.act()
     }
@@ -931,7 +931,7 @@ class Penguin (
 ## 클래스를 상속할 떄 주의할 점
 
 ```
-fun main() {
+functions main() {
     Derived(300) // Base Class → 0 → Derived Class
 }
 
@@ -1086,7 +1086,7 @@ public abstract class StringUtils {
 
 ```
 StringUtil.kt 파일
-fun isDirectoryPath(path: String): Boolean {
+functions isDirectoryPath(path: String): Boolean {
     return path.endsWith("/")
 }
 
@@ -1138,7 +1138,7 @@ class User (
     var balance = _balance
         private set              // 읽기는 공개, 수정을 클래스 내부만
         
-    fun deposit(amount: Int) {
+    functions deposit(amount: Int) {
         balance += amount        // 내부에서만 수정 가능
     }
 }
@@ -1194,18 +1194,18 @@ class Person private constructor(
 ) {
     companion object Factory : Log {
         private const val MIN_AGE = 1
-        fun newBaby(name: String): Person {
+        functions newBaby(name: String): Person {
             return Person(name, MIN_AGE)
         }
 
-        override fun log() {
+        override functions log() {
             println("companion object of Person class")
         }
     }
 }
 
 interface Log {
-    fun log()
+    functions log()
 }
 ```
 
@@ -1274,20 +1274,20 @@ private static void moveSomething(Movable movable) {
 }
     
 Kotlin
-fun main (){
+functions main (){
     moveSomething(object: Movable {
-        override fun move() {
+        override functions move() {
             println("move")
         }
         
-        override fun fly() {
+        override functions fly() {
             println("fly")
         }
     
     })
 }
 
-private fun moveSomething(movable: Movable) {
+private functions moveSomething(movable: Movable) {
     movable.move()
     movable.fly()
 }
@@ -1441,13 +1441,13 @@ class User private constructor(
         private var phone: String = ""
         private var address: String = ""
         
-        fun name(name: String) = apply { this.name = name }
-        fun age(age: Int) = apply { this.age = age }
-        fun email(email: String) = apply { this.email = email }
-        fun phone(phone: String) = apply { this.phone = phone }
-        fun address(address: String) = apply { this.address = address }
+        functions name(name: String) = apply { this.name = name }
+        functions age(age: Int) = apply { this.age = age }
+        functions email(email: String) = apply { this.email = email }
+        functions phone(phone: String) = apply { this.phone = phone }
+        functions address(address: String) = apply { this.address = address }
         
-        fun build() = User(name, age, email, phone, address)
+        functions build() = User(name, age, email, phone, address)
     }
 }
 
@@ -1538,7 +1538,7 @@ public enum JavaCountry {
 
 ```
 Kotlin
-fun handleCountry(country: Country) {
+functions handleCountry(country: Country) {
     when (country) {
         Country.KOREA -> println("Korea 로직")
         Country.AMERICA -> println("AMERICA 로직")
@@ -1557,7 +1557,7 @@ enum class Country(
 // 컴파일르가 즉시 경고: "when expression must be exhaustive"
 
 Return 타입에서의 강력함
-fun handleCountry(country: Country) {
+functions handleCountry(country: Country) {
     return when (country) {
         Country.KOREA -> println("Korea 로직")
         Country.AMERICA -> println("AMERICA 로직")
@@ -1591,7 +1591,7 @@ class Lee: Person("Lee", 30)
 
 - 완전한 분기 처리
 ```
-private fun handlePerson(person: Person) {
+private functions handlePerson(person: Person) {
     when(person) {
         is Kim -> println("Kim")
         is Park -> println("Park")
@@ -1613,7 +1613,7 @@ data class Error<T>(val code: Int, val message: String) : ApiResponse<T>()
 object Loading : ApiResponse<Nothing>()
 
 // 타입 안전한 분기 처리
-fun handleResponse(response: ApiResponse<User>) = when (response) {
+functions handleResponse(response: ApiResponse<User>) = when (response) {
     is Success -> showUser(response.data)
     is Error -> showError(response.message)
     is Loading -> showLoading()
@@ -1661,7 +1661,7 @@ for((idx, value) in newArray.withIndex()) {
 ### Collection - List
 #### 생성
 ```
-fun main() {
+functions main() {
     // 불변 리스트
     // listOf를 통해 '불변 리스트'를 생성
     val numbers = listOf(100, 200) // 타입추론을 해주기 떄문에 타입 생략 가능
@@ -1676,7 +1676,7 @@ fun main() {
     mutableNumbers.add(300) // 추가 가능
 }
 
-private fun printNumbers(numbers: List<Int>) { }
+private functions printNumbers(numbers: List<Int>) { }
 ```
 
 #### Java
@@ -1699,7 +1699,7 @@ for (int i = 0; i < numbers.size(); i++) {
 
 #### Kotlin
 ```
-fun main() {
+functions main() {
     val numbers = listOf(100, 200)
     // 하나를 가져오기
     numbers.get(0) // 가능은 함
@@ -1721,7 +1721,7 @@ fun main() {
 - 자료구조적인 의미만 제외하면 모든 기능이 List와 비슷하다
 - 
 ```
-fun main() {
+functions main() {
     val numbers = setOf(100, 200)
 
     val mutableNumbers = mutableSetOf(100, 200)
@@ -1743,7 +1743,7 @@ fun main() {
 - Kotlin도 동일하게 MutableMap을 만들어 넣을 수도 있고, 정적 팩토리 메소드를 바로 활용할 수도 있다
 
 ```
-fun main() {
+functions main() {
     val oldMap = mutableMapOf<Int, String>() // 타입을 추론할 수 없어, 타입 지정
     oldMap.put(1, "Monday") // Java처럼 put사용
     oldMap.put(2, "Tuesday")
@@ -1810,14 +1810,14 @@ list?.let { safeList ->
 - 실용적 사용 예시 (함수 파라미터에서의 활용)
 ```
 // 요소만 nullable - 빈 값들을 처리할 때
-fun processUserNames(names: List<String?>) {
+functions processUserNames(names: List<String?>) {
     names.filterNotNull().forEach { name ->
         println("Hello, $name")
     }
 }
 
 // 리스트만 nullable - 선택적 데이터를 받을 때
-fun processOptionalData(data: List<String>?) {
+functions processOptionalData(data: List<String>?) {
     data?.forEach { item -> // item은 확실히 String 
         println(item.uppercase())
     }
@@ -1827,7 +1827,7 @@ fun processOptionalData(data: List<String>?) {
 - 반환 타입에서의 활용
 ```
 // 빈 리스트 vs null로 의미 구분
-fun findUsers(query: String): List<User>? {
+functions findUsers(query: String): List<User>? {
     return if(query.isBlock()) null // 검색 안함
         else userRepository.search(qeury) // 빈 리스트 or 결과 리스트
 }
@@ -1883,7 +1883,7 @@ classs KotlinService {
     private val items = mutableListOf("A", "B", "C")
     
     // Java에 안전하게 노출
-    fun getItemsForJava(): List<String> {
+    functions getItemsForJava(): List<String> {
         return Collections.unmodifiableList(items)
     }
 }
@@ -1921,13 +1921,13 @@ class JavaCollectionWrapper {
     private val javaService = javaService()
     
     // Java 호출 지점을 래핑하여 타입 명확화
-    fun getNumbers() :List<Int> {
+    functions getNumbers() :List<Int> {
         return javaService.getNumbers()
             ?.filterNotNull() // null 요소 제거
             ?: emptyList() // null 리스트 처리
     }
     
-    fun getSafeNumbers(): List<Int?> {
+    functions getSafeNumbers(): List<Int?> {
         return javaService.getNumbers() ?: emptyList()
     }
 }
@@ -1935,7 +1935,7 @@ class JavaCollectionWrapper {
 
 - 방어적 검증
 ```
-fun processJavaList() {
+functions processJavaList() {
     val javaList = javaService.getNumbers()
     
     // 안전한 사용을 위한 검증
@@ -1956,3 +1956,171 @@ fun processJavaList() {
   - 영향범위 최소화: 플랫폼 타입이 Kotlin 코드 전체로 퍼지지 않도록 차단
   - 방어적 검증: null 체크와 필터링으로 안정성 확보
 - Java 컬렉션을 가져올 때는 플랫폼 타입의 모호함을 인지하고, 적절한 래핑과 검증을 통해 타입 안전성을 확보하는 것이 중요
+
+<hr>
+
+# 16. 다양한 함수를 다루는 방법
+
+## 확장함수
+
+### 확장함수 탄생 배경
+- 고민: Java와 100% 호환하면서, 기존 Java 코드 위에 자연스럽게 Kotlin 기능을 추가할 수 없을까?
+  - Java로 만들어진 라이브러리를 수정하지 않고도 Kotlin의 장점(val/var, null-safety 등)을 활용하여 기능 확장
+- 해결 아이디어: 클래스 밖에서 함수를 만들되, 마치 클래스 안에 메서드처럼 호출하도록 하자
+```
+fun String.lastChar(): Char {
+    return this[this.length - 1] // 문자열이 존재하는 가장 마지막 문자열 반환
+}
+
+fun 확장하려는클래스.함수이름(파라미터): 리턴타입 {
+    // this를 이용해 실제 클래스 안의 값에 접근
+}
+```
+- fun: 함수
+- String: String Class를 확장 (수신객체 타입)
+- this: 함수 안에서는 this를 통해 인스턴스 접근 가능 (수신 객체)
+
+### 확장함수의 캡슐화 보호 설계
+#### 설계 고민
+- 우려사항: 확장함수가 public이면서 클래스의 private 멤버에 접근할 수 있다면, 캡슐화 원칙이 깨지는 것 아닌가?
+  - 클래스 외부에서 정의된 확장함수가 클래스 내부의 비공개 데이터에 자유롭게 접근할 수 있다면, 객체지향의 핵심 원칙인 정보 은닉과 캡슐화가 무너질 위험이 있다
+
+#### 해결책: 접근 제한
+- 설계 결정: 확장함수는 public 멤버에만 접근 가능하도록 제한
+  - 확장함수에서는 클래스의 private이나 protected 멤버를 가져올 수 없게 설계되었다. 이를 통해 클래스의 내부 구현을 보호하면서도 기능 확장의 이점을 얻을 수 있다
+
+- 확장은 가능하되, 캡슐화는 보호한다. 확장 함수의 접근 제한은 기능 확장의 편의성과 객체지향 원칙 준수 사이의 균형 갖춘 설계이다
+
+### 멤버함수 VS 확장함수 우선순위
+- 호출 우선순위 규칙: 동일한 시그니처가 있을 때는 멤버함수가 항상 우선 호출
+- 잠재점 위험 시나리오
+  - 처음: 확장함수만 존재 → 정상 동작
+  - 나중: 라이브러리 업데이트로 동일한 시그니처의 멤버함수 추가
+  - 결과: 기존 확장함수가 호출되지 않음 → 동작 변경
+- 확장함수는 멤버함수와의 충돌 위험을 염두해서 신중하게 네이밍 해야 한다
+
+### 확장함수의 정적타입 기반 호출
+- 확장함수는 변수의 선언 타입(정적 타입)에 따라 어떤 함수가 호출될지 컴파일 타임에 결정된다
+- 확장함수는 다형성을 지원하지 않으며, 변수의 정적 타입에 의해서 결정. 이는 확장함수가 컴파일 타임에 정적으로 결정되기 때문
+
+## Java에서의 Kotlin 확장함수 사용 가능
+```
+public class JavaMain {
+    public static void main(String[] args) {
+        StringUtilsKt.lastChar("ABC")
+    }
+}
+```
+
+### 확장 프로퍼티: 확장함수의 발전형
+- 확장 프로퍼티는 확장함수 + custom getter의 조합으로, 기존 클래스에 프로퍼티처럼 접근 가능한 기능으로 기존 Java 클래스를 Kotlin 스타일로 자연스럽게 사용 가능하게 해준다
+
+## infix 함수 (중위 함수)
+- infix 함수는 함수 호출을 더 자연스러운 언어처럼 표현해주는 기능
+
+```
+// 일반 확장함수
+fun Int.add(other: Int): Int = this + other
+3.add(4)
+
+// Infix 확장함수
+infix fun Int.add2(other: Int): Int = this + other
+3.add2(4) // 일반 호출
+3 add2 4 // 중위 함수 호출 (DSL 스타일)
+```
+
+- 핵심 특징은 DSL 느낌의 자연스러운 표현으로 3 add2 4 처럼 수학적 표현이나 자연어에 가까운 형태로 함수를 호출할 수 있어 코드 가독성 향상
+
+#### DSL (Domain Specific Language)
+- 특정 도메인(영역)에 특화된 언어로 해당 분야의 전문가가 이해하기 쉬운 형태로 코드를 작성할 수 있게 해주는 언어로 대표적으로 SQL이 있다
+- DSL는 코드를 해당 도메인의 언어처럼 만들어 전문가도 이해할 수 있게 하는 것이 목표다
+- Kotlin의 DSL: infix 함수, 람다, 확장함수 등을 조합하여 표현력 있고 읽기 쉬운 코드 작성 가능
+- DSL은 프로그래밍을 특정 분야의 전문 언어로 만들어 코드의 가독성과 유지보수성을 획기적으로 개선해준다
+
+## inline 함수
+- inline 함수는 함수 호출 대신 함소 본문을 호출 지점에 직접 복사하는 기능
+```
+inline fun Int.add(other: Int): Int {
+    return this + other
+}
+
+// 사용
+3.add(4)
+
+// 실제 컴파일 결과 (개념적)
+// 3 + 4 <- 함수 본문이 직접 삽입된다
+```
+
+- 사용 목적은 성능 최적화로 스택 프레임 생성/'해제 비용을 절약하여 함수 호출 오버헤드를 제거하고 여러 함수가 연속 호출될 때 overhead를 감소하여 함수 체이닝 최적화를 해준다
+- 고차 함수에서 유용
+```
+// 람다를 매개변수로 받는 함수들
+inline fun repeat(times: Int, action: () -? Unit) {
+    for (i in 0 until times) action()
+}
+
+// 함수 호출 비용 없이 반복
+```
+
+#### 주의사항
+- 신중한 사용 필요
+  - 코드 크기 증가: 함수 본문이 여러 곳에 복사되어 바이트코드 크기 증가
+  - 컴파일 시간 증가: 인라인 처리로 컴파일 시간 증가
+  - 성능 측정 필수: 실제 성능 개선 여부를 측정하고 사용
+- 적절한 사용 시점
+  - 작은 함수: 본문이 간단한 함수
+  - 고차 함수: 람다를 매개변수로 받는 함수
+  - 자주 호출되는 함수: 호출 빈도가 높은 유틸리티 함수
+
+#### 실무 사용 예시
+```
+// 이미 inline으로 최적화된 함수들
+list.forEach { ... } // inline 함수
+list.map { ... } // inline 함수
+```
+- inline 함수는 함수 호출 비용을 제거하여 성능을 향상시키지만, 코드 크기 증가라는 트레이드 오프가 있어 성능 측정을 통한 신중한 사용 필요
+
+## 지역함수
+- 지역 함수는 함수 내부에 선언되는 함수로 함수 안의 중복 코드를 제거할 떄 사용
+
+#### 중복 코드
+```
+fun createPerson (firstName: String, lastName: String): Person {
+    if (firstName.isEmpty()) {
+        throw IllegalArgumentException("firstName은 비어있을 수 없습니다. $firstName")
+    }
+
+    if (lastName.isEmpty()) {
+        throw IllegalArgumentException("lastName은 비어있을 수 없습니다. $firstName")
+    }
+
+    return Person(firstName, lastName, 1)
+}
+```
+
+#### 지역 함수 활용
+```
+fun createPerson (firstName: String, lastName: String): Person {
+    fun validateName(name: String, fieldName: String) {
+        if (name.isEmpty()) {
+            throw IllegalArgumentException("${fieldName}은 비어있을 수 없습니다. $name")
+        }
+    }
+
+    validateName(firstName, "firstName")
+    validateName(lastName, "lastName")
+
+    return Person(firstName, lastName, 1)
+}
+```
+- 장점
+  - 중복 코드 제거: 반복되는 로직을 하나로 통합
+  - 스코프 제한: 해당 함수 내에서만 사용하는 헬퍼 함수
+- 한계
+  - 가독성 저하: 코드 depth가 깊어져 복잡해 보임
+  - 테스트 어려움: 지역 함수는 직접 테스트하기 어려움
+  - 재사용성 부족: 다른 곳에서 사용 불가능
+
+#### 더 나은 대안 (책임분산)
+- Person 클래스 자체가 검증 책임을 가지는 것이 더 객체지향적이다
+- 지역 함수는 중복 제거의 한 방버이지만, 실무에서는 클래스나 별도 함수로 책임을 분리하는 것이 더 깔끔하기 유지보수 하기 좋다
