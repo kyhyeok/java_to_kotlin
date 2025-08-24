@@ -2125,3 +2125,413 @@ fun createPerson (firstName: String, lastName: String): Person {
 #### 더 나은 대안 (책임분산)
 - Person 클래스 자체가 검증 책임을 가지는 것이 더 객체지향적이다
 - 지역 함수는 중복 제거의 한 방버이지만, 실무에서는 클래스나 별도 함수로 책임을 분리하는 것이 더 깔끔하기 유지보수 하기 좋다
+
+<hr>
+
+# 17. 람다를 다루는 방법
+
+## Java에서 람다를 다루기 위한 노력
+```
+Java
+public class Fruit {
+
+    private final String name;
+
+    private final int price;
+
+    public JavaFruit(String name, int price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public boolean isApple() {
+        return this.name.equals("사과");
+    }
+    
+}
+
+public interface FruitFilter {
+    boolean isSelected(Fruit fruit);
+}
+```
+### 문제 상황: 코드 중복과 비효율성
+```
+// 과일별로 메서드를 각각 만들어야 하는 중복
+private List<Fruite> findApples(List<Fruite> fruits) {
+    List<JavaFruit> apples = new ArrayList<>();
+        for (JavaFruit fruit : fruits) {
+            if (fruit.getName().equals("사과")) {
+                apples.add(fruit);
+            }
+        }
+        return apples;
+}
+private List<Fruite> findBananas(List<Fruite> fruits) { ... }
+// 새로운 조건마다 메서드 추가 필요
+```
+
+### 1단계 변화: 매개변수
+```
+    private List<Fruit> findFruitsWithName(List<Fruit> fruits, String name) {
+        List<Fruit> results = new ArrayList<>();
+        for (Fruit fruit : fruits) {
+            if (fruit.getName().equals(name)) {
+                results.add(fruit);
+            }
+        }
+        return results;
+    }
+```
+- 이름만으로는 복잡한 조건 처리 한계
+
+### 2단계 변화: 인터페이스 + 익명 클라스
+```
+// 사용
+filterFruits(fruits, new FruitFilter() {
+    @Override
+    public boolean isSelected(Fruit fruit) {
+        return Arrays.asList("사과", "바나나")
+                .contains(fruit.getName()) && fruit.getPrice() > 5_000;
+    }
+});
+
+// 인터페이스
+public interface FruitFilter {
+    boolean isSelected(Fruit fruit);
+}
+
+private static List<Fruit> filterFruits(List<Fruit> fruits, FruitFilter filter) {
+    List<Fruit> results = new ArrayList<>();
+    for (Fruit fruit : fruits) {
+        if (filter.isSelected(fruit)) {
+            results.add(fruit);
+        }
+    }
+    return results;
+}
+```
+- 잠점으로는 무한한 조건 추가가 가능하고 단점으로는 복잡하고 장황해진다
+
+### 3단계 변화: Lambda (Java 8+) + 표준 함수형 인터페이스 활용
+```
+// 익명 클래스는 람다로 간소화
+filterFruitsLambda(fruits, fruit -> fruit.getName().equals("사과"));
+filterFruitsLambda(fruits, fruit -> fruit.gerPrice() > 1_000);
+
+private static List<Fruit> filterFruitsLambda(List<Fruit> fruits, Predicate<Fruit> filter) {
+    List<Fruit> results = new ArrayList<>();
+    for (Fruit fruit : fruits) {
+        if (filter.test(fruit)) { // test() 메서드 사용
+            results.add(fruit);
+        }
+    }
+    return results;
+}
+```
+
+### 4단계 변화: Stream API + 메서드 참조
+```
+// Lambda 사용
+filterFruitsStream(fruits, fruit -> fruit.getName().equals("사과"));
+
+// 메서드 참조 활용
+filterFruitsStream(fruits, JavaFruit::isApple); // fruit -> fruit.isApple()와 동일하지만 더 간결
+
+// 더욱 간결한 함수형 스타일
+private static List<JavaFruit> filterFruitsStream(List<JavaFruit> fruits, Predicate<JavaFruit> filter) {
+    return fruits.stream()
+            .filter(filter)
+            .collect(Collectors.toList()); // toList()는 Java 16 +
+}
+```
+
+### 함수의 시민권 (함수는 2급 시민)
+```
+// 불가능한 것들
+// 1. 함수를 변수에 직접 할당
+// Function myFunction = someMethod;
+
+// 함수를 직접 파라미터로 전달
+// processData(someMethod);
+
+// 가능한 것: 함수형 인터페이스를 우회
+Predicate<Fruit> filter = fruit -> fruit.getName().equals("사과");
+```
+
+#### 실제로는 인터페이스를 통한 우회
+```
+// 겉보기: 함수를 전달하는 것 같음
+filterFruitsStream(fruits, fruit -> fruit.getName().equals("사과"));
+
+// 실제: Predicate 인터페이스의 구현체를 전달
+filterFruitsStream(fruits, new Predicate<Fruit>() {
+    @Override
+        public boolean test(Fruit fruit) {
+            return fruit.getName().equals("사과");
+        }
+}
+```
+
+### 주요 함수형 인터페이스들
+```
+// Predicate<T> - 조건 검사 (T -> boolean)
+Predicate<String> isEmpty = str -> str.isEmpty();
+
+// Consumer<T> - 소비 (T -> void)
+Consumer<String> printer = str -> System.out.println(str);
+
+// Function<T, R> - 변환 (T -> R)
+Function<String, Integer> stringLength = str -> str.length();
+
+// Supplier<T> - 공급 (() -> T)
+Supplier<String> greeting = () -> "Hello Java";
+```
+- Java는 함수를 2급 시민으로 다루지만, 함수형 인터페이스와 람다를 통해 함수형 프로그래밍의 이점을 제공
+
+## 코틀린에서의 람다
+
+### Java vs Kotlin의 근본적 차이
+- Java 함수는 2급 시민으로 인터페이스를 통해서만 전달 가능
+- Kotlin 함수는 1급 시민으로 변수 할당, 파라미터 전달 직접 가능
+
+### Kotlin Lambda 문법
+```
+fun main() {
+    val fruits = listOf(
+        Fruit("사과", 1000),
+        Fruit("사과", 1200),
+        Fruit("사과", 1200),
+        Fruit("사과", 1500),
+        Fruit("바나나", 3000),
+        Fruit("바나나", 3200),
+        Fruit("바나나", 2500),
+        Fruit("수박", 10000)
+    )
+}
+```
+
+#### Lambda 선언 방법
+```
+// 방법 1: fun 키워드 (익명 함수)
+val isApple = fun(fruit: Fruit): Boolean {
+    return fruit.name == "사과"
+}
+
+// 방법 2: 중괄호 + 화살표 (일반적)
+val isApple2 = { fruit: Fruit -> fruit.name == "사과" }
+```
+
+#### Lambda 호출
+```
+// 방법 1: 직접 호출
+isApple(fruits[0])
+
+// 방법 2: invoke() 사용 (명시적)
+```
+
+### 함수 타입 시스템
+
+#### 함수 타입 표현
+```
+/// 함수 타입: (파라미터 타입...) -> 반환 타입
+val filter: (Fruit) -> Boolean = { fruit -> fruit.name == "사과" }
+val converter: (String) -> Int = {str -> str.length }
+val multiParam: (String, Int, Boolean) -> String = { a, b, c -> "$a-$b-$c" }
+```
+
+#### 함수 파라미터 정의
+```
+// Java: 인터페이스 필요
+private static List<Fruit> filterFruits (
+    List<Fruit> fruits,
+    Predicate<Fruit> filter // 인터페이스
+) { ... }
+
+// Kotlin: 함수 타입 직접 사용
+private fun filterFruits(
+    fruits: List<Fruit>,
+    filter: (Fruit) -> Boolean // 함수 타입 자체
+): List<Fruit> {
+    ...
+}
+```
+
+### Kotlin Lambda 문법 간소화
+
+#### 단계별 간소화 과정
+```
+// 1단계: 기본 형태
+filterFruits(fruits, { fruit: Fruit -> fruit.name == "사과" }) 
+
+// 2단계: 마지막 파라미터가 함수면 괄호 밖으로
+filterFruits(fruits) { fruit: Fruit -> fruit.name == "사과" }
+ 
+// 3단계: 타입 추론으로 타입 생략
+filterFruits(fruits, { fruit -> fruit.name == "사과" })
+ 
+// 4단계: 파라미터가 1개면 it 사용
+filterFruits(fruits, { it.name == "사과" }) 
+```
+
+#### it 키워드 사용
+```
+// 파라미터가 1개인 경우 it으로 간소화
+fruits.filter { it.name == "사과" }
+fruits.map { it.price * 0.9 }
+fruits.any { it.price > 5_000 }
+
+// 파라미터가 여러 개면 명시적 선언
+fruits.groupBy { fruit -> fruit.name } // it 사용 불가
+```
+
+### 고급 Lambda 기능
+
+#### 여러 줄 Lambda
+```
+val complexFilter = { fruit: Fruit ->
+    val isTargetFruit = fruit.name in listOf("사과", "바나나")
+    val isReasonablePrice = fruit.price <= 3000
+    val isPopular = fruit.name == "사과"
+    
+    isTargetFruit && isReasonablePrice && isPopular // 마지막 줄이 반화 값
+}
+
+filterFruits(fruits, complexFilter)
+```
+
+#### 고차 함수 활용
+```
+// 함수를 반환하는 함수
+fun createPriceFilter(maxPrice: Int): (Fruit) -> Boolean {
+    return { fruit -> fruit.price <= maxPrice }
+}
+
+// 사용
+val cheapFilter = createPriceFilter(2_000)
+filterFruits(fruits, cheapFilter)
+```
+
+### Kotlin 표준 라이브러리 활용
+```
+val fruits = listOf(/*...*/)
+
+// 체이닝으로 간결한 처리
+val result = fruits
+    .filter { it.name == "사과" }
+    .map { "${it.name}: ${it.price}" }
+    .sorted()
+    .takle(3)
+    
+// 다양한 고차 함수들
+fruits.any { it.price > 5_000 } // 하나라도 조건 만족? 
+fruits.all { it.price > 0 } // 모두 조건 만족?
+fruits.count { it.name == "바나나" } // 조건 만족하는 개수
+fruits.groupBy { it.name } // 이름별로 그룹핑
+fruits.partition { it.price > 2_000 } // 조건으로 분할
+```
+- Kotlin의 lambda는 함수를 1급 시민으로 다루어 Java보다 간결하고 표현력 있는 함수형 프로그래밍을 가능하게 한다
+
+## Closure
+### Java의 제약: Effectively Final
+```
+String targetFruitName = "바나나"
+targetFruitName = "수박"
+filterFruits(fruits, (fruit) -> targetFruitName.equals(fruit.getName());
+// 컴파일 에러: Variable used in lambda expression should be final or effectively final
+// Java 람다는 변경 불가능한 변수만 캡처할 수 있다
+
+// 해결 방법 1: final 변수 사용
+final String finalTarget = "수박"
+filterFruits(fruits, (fruit) -> targetFruitName.equals(fruit.getName());
+
+// 해결 방법 2: effectively final (한 번만 할당)
+String finalTarget = "수박"
+filterFruits(fruits, (fruit) -> targetFruitName.equals(fruit.getName());
+```
+
+### Kotlin의 Closure
+```
+var targetFruitName = "바나나"
+targetFruitName = "수박"
+filterFruits(fruits) { it.name == targetFruitName } // 정상 동작
+```
+
+- 람다를 씀과 동시에 만들어두었던 targetFruitName을 사용하는 코드
+- Variable used in lambda expression should be final or effectively final
+- 람다 표현에 사용되는 변수는 최종 변수 또는 사실상 최종 변수여야 합니다
+- 람다를 사용할 때 람다 밖에 있는 변수를 사용하는 경우 제약이 있을 수 있다.
+- final인 변수 혹은 실질적으로 final인 변수만 사용할 수 있다. 이 경우에는 바나나였다가 수박으로 한 번 바뀌었기 떄문에 사용이 불가능하다
+
+```
+var targetFruitName = "바나나"
+targetFruitName = "수박"
+filterFruits(fruits) { it.name == targetFruitName }
+```
+
+### Closure
+Closure는 Lambda가 실행되는 시점에 참조하는 외부 변수들을 모두 초획(capture)한 데이터 구조이다
+
+#### Closure의 동작 원리
+```
+fun createFilter(): (Fruit) -> Boolean {
+    var count = 0 // 지역 변수
+    
+    return { fruit ->
+        count++ // 외부 변수 수정 가능
+        println("호출 횟수: $count")
+        fruit.name == "사과"
+    }
+}
+
+val filter = createFilter()
+fruits.filter(filter) // count 변수를 계속 유지하고 수정
+```
+
+#### 포획 메커니즘
+```
+fun demonstrateClosure() {
+    var capturedVar = "초기값"
+    var multiplier = 2
+    
+    val lambda = { value: Int ->
+        capturedVar = "변경됨" // 외부 변수 수정
+        println("포획된 값: $capturedVar")
+        value * multiplier
+    }
+    
+    // lambda는 capturedVar와 multiplier를 "포획"하고 있음
+    lambda(5)
+    println(capturedVar) // "변경됨" - 람다에서 수정한 값이 반영
+}
+```
+- Closure는 람다가 외부 스코프의 변수들을 포획하여 자신만의 환경을 구성하는 것
+- JavaScript나 PHP에서는 각종 버그가 되는 문제의 원인이 되는 이야기를 들은 기억도 나는데 Kotlin은 타입 안정성과 JVM의 GC 덕분에 상대적으로 안전하다고 한다
+
+## 다시 try with resources
+```
+fun readFile(path: String) {
+    BufferedReader(FileReader(path)).use { reader ->
+        println(reader.readLine())
+    }
+}
+
+```
+#### use 시그니처
+```
+public inline fun <T: Closeable?, R> T.use(block: (T) -> R): R { ... }
+//      ↑       ↑            ↑     ↑     ↑               ↑
+//    inline  제네릭타입     확장함수 배개변수 람다타입         반환타입
+```
+- inline: 성능 최적화를 위한 인라인 함수
+- <T: Closeable?, R>: T는 nullable Closeable, R은 반환 타입
+- T.use: Closeable을 구현하는 타입 T에 대한 확장함수
+- block: (T) -> R: T를 받아 R을 반환하는 람다 함수
+- Kotlin의 use 함수는 자원 관리를 자동화하면서도 함수형 프로그래밍의 장점을 살린 우아한 해결책이다
