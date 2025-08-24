@@ -8,9 +8,9 @@ fun main() {
 
     val number5 = 4;
     // val number6: Long = number5; Type mismatch 에러 발생
-    val number6: Long = number5.toLong(); // Type mismatch 에러 발생
+    val number6: Long = number5.toLong();
 
-    val number7: Int? = 3 // Int 타입, null을 허용하지 않음
+    val number7: Int? = 3 // Int 타입, null을 허용
     // val number8: Long = number7.toLong() number7이 null일 수 있으므로 NPE가 발생할 수 있음
     val number8: Long = number7?.toLong() ?: 0L
 
@@ -32,10 +32,10 @@ fun main() {
 }
 
 
-fun printAGeIfPerson(obj: Any) {
+fun printAgeIfPerson(obj: Any) {
     // is는 Java instanceof와 동일한 기능을 함
     if (obj is Person) {
-        // as Person은 Java의 강 제 형변환과 동일한 기능을 함
+        // as Person은 Java의 강제 형변환과 동일한 기능을 함
         val person = obj as Person // Smart cast
         println(person.age)
     }
@@ -50,14 +50,14 @@ fun printAGeIfPerson(obj: Any) {
     }
 }
 
-fun printAGeIfPersonReverse(obj: Any) {
+fun printAgeIfPersonReverse(obj: Any) {
     // if (!(obj instanceof Person))
     if (obj !is Person) {
         return
     }
 }
 
-fun printAGeIfPersonNull(obj: Any?) {
+fun printAgeIfPersonNull(obj: Any?) {
     // obj가 null이 아니라면 Person 타입으로 안전하게 캐스팅 아닐경우 null을 반환
     val person = obj as? Person // Safe cast
     println(person?.age) // person이 null이 아니라면 age를 출력, null이라면 아무것도 출력하지 않음

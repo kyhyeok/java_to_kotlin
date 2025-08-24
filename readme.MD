@@ -108,7 +108,6 @@ functions startWithNeverNull(str: String?): Boolean {
 
 ## 기본 타입
 
-- Kotlin의 기본 타입은 Java의 기본 타입과 동일하다
 - Kotlin의 기본 타입은 Java의 기본 타입과 동일하지만, Kotlin에서는 기본 타입과 참조 타입이 구분되지 않는다
 - Java 기본 타입간의 변환은 암시적으로 이루어지지만, Kotlin 기본 타입간의 변환은 명시적으로 이루어져야 한다
 - Java
@@ -116,7 +115,7 @@ functions startWithNeverNull(str: String?): Boolean {
     - 하지만, 큰 타입에서 작은 타입으로의 변환은 명시적으로 해야 한다
 - Kotlin
     - integer 타입을 long 타입으로 변환할 때는 toLong()을 사용해야 한다. 그렇지 않으면 type mismatch 에러가 발생한다
-- 변수가 nullable 타입인 경우 적절한 처리가 필요하다
+    - 변수가 nullable 타입인 경우 적절한 처리가 필요하다
 
 ## 타입 캐스팅
 
@@ -162,15 +161,15 @@ functions startWithNeverNull(str: String?): Boolean {
 - Kotlin의 Nothing 타입은 어떤 값도 가질 수 없는 타입이다
 - Nothing 타입은 함수가 절대 반환하지 않는다는 것을 나타낸다
     - 함수가 정상적으로 끝나지 않았다는 사실을 표현하는 역할이다.
-- 무조건 예외를 반환하는 암수 / 무한 루프 함수 등에서 사용된다
+- 무조건 예외를 반환하는 함수 / 무한 루프 함수 등에서 사용된다
 
 ```
-functions fail(message: String): Nothing {
+fun fail(message: String): Nothing {
     throw IllegalArgumentException(message)
 }
 ```
 
-## String Interpolation, String Indexing
+### String Interpolation
 
 - Kotlin에서는 String Interpolation을 지원한다
 - String Interpolation은 ${}를 사용하여 변수나 표현식을 문자열에 삽입하는 방법이다
@@ -189,7 +188,7 @@ builder.append(person.getAge());
 builder.append("세 입니다");
 
 Kotlin
-val person2 = Person("혁 개발자", 30)
+val person2 = Person("혁 개발자", 100)
 val log2 = "사람의 이름은 ${person2.name}이고 나이는 ${person2.age}세 입니다"
 
 val name = "혁 개발자"
@@ -208,6 +207,8 @@ val str ="""
 """.trimIndent()
 println(str)
 ```
+
+### String Indexing
 
 - String Indexing은 문자열의 특정 위치에 있는 문자를 가져오는 방법이다
 - Kotlin에서는 문자열의 특정 위치에 있는 문자를 가져올 때, []를 사용한다
@@ -2091,7 +2092,7 @@ fun createPerson (firstName: String, lastName: String): Person {
     }
 
     if (lastName.isEmpty()) {
-        throw IllegalArgumentException("lastName은 비어있을 수 없습니다. $firstName")
+        throw IllegalArgumentException("lastName은 비어있을 수 없습니다. $lastName")
     }
 
     return Person(firstName, lastName, 1)
