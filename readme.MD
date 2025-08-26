@@ -2535,3 +2535,19 @@ public inline fun <T: Closeable?, R> T.use(block: (T) -> R): R { ... }
 - T.use: Closeable을 구현하는 타입 T에 대한 확장함수
 - block: (T) -> R: T를 받아 R을 반환하는 람다 함수
 - Kotlin의 use 함수는 자원 관리를 자동화하면서도 함수형 프로그래밍의 장점을 살린 우아한 해결책이다
+
+<hr>
+
+# 18. 컬렉션을 함수형으로 다루는 방법
+
+## 필터와 맵
+- FilterAndMap.kt
+
+## 다양한 컬렉션 처리 기능
+- Collections.kt
+
+## List를 Map으로
+- ListToMap.kt
+
+## 중첩된 컬렉션 처리
+- NestingCollections.kt
