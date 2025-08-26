@@ -6,7 +6,7 @@ public class JavaMain {
         JavaMoney money2 = new JavaMoney(1_000L);
 
         if (money1.compareTo(money2) > 0) {
-            System.out.println("money이 money2보다 금액이 큽니다");
+            System.out.println("money1이 money2보다 금액이 큽니다");
         }
 
         JavaMoney money3 = new JavaMoney(1_000L);
